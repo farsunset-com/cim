@@ -184,8 +184,6 @@ public class CIMPushService extends Service {
             notificationHandler.sendEmptyMessageDelayed(0, 200);
         }
 
-        android.os.Process.killProcess(android.os.Process.myPid());
-
         return super.onStartCommand(intent,flags,startId);
     }
 

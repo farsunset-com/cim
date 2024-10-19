@@ -25,7 +25,7 @@ package com.farsunset.cim.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "t_hoxin_session")
+@Table(name = "t_cim_session")
 public class Session{
 
     public static final int STATE_ACTIVE = 0;
@@ -80,7 +80,7 @@ public class Session{
     /**
      * 终端设备类型
      */
-    @Column(name = "channel",length = 10,nullable = false)
+    @Column(name = "channel",length = 16,nullable = false)
     private String channel;
 
     /**
@@ -106,24 +106,6 @@ public class Session{
      */
     @Column(name = "bind_time")
     private Long bindTime;
-
-    /**
-     * 经度
-     */
-    @Column(name = "longitude")
-    private Double longitude;
-
-    /**
-     * 维度
-     */
-    @Column(name = "latitude")
-    private Double latitude;
-
-    /**
-     * 位置
-     */
-    @Column(name = "location")
-    private String location;
 
     /**
      * 状态
@@ -208,30 +190,6 @@ public class Session{
 
     public void setBindTime(Long bindTime) {
         this.bindTime = bindTime;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 
     public String getLanguage() {

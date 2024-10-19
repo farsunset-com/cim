@@ -21,8 +21,9 @@
  */
 package com.farsunset.cim.acceptor.config;
 
+import com.farsunset.cim.auth.AuthPredicateInfo;
 import com.farsunset.cim.constant.WebsocketProtocol;
-import com.farsunset.cim.handshake.HandshakeEvent;
+import com.farsunset.cim.handler.LoggingHandler;
 
 import java.util.function.Predicate;
 
@@ -48,9 +49,15 @@ public class WebsocketConfig extends SocketConfig{
     private WebsocketProtocol protocol;
 
     /**
-     * websocket鉴权实现
+     * 鉴权实现
      */
-    private Predicate<HandshakeEvent> handshakePredicate;
+    private Predicate<AuthPredicateInfo> authPredicate;
+
+    /**
+     * 自定义日志打印处理器，可不设置
+     */
+
+    private LoggingHandler loggingHandler;
 
 
     @Override
@@ -66,10 +73,6 @@ public class WebsocketConfig extends SocketConfig{
         return protocol == null ? DEFAULT_PROTOCOL : protocol;
     }
 
-    public Predicate<HandshakeEvent> getHandshakePredicate() {
-        return handshakePredicate;
-    }
-
     public void setPath(String path) {
         this.path = path;
     }
@@ -78,9 +81,19 @@ public class WebsocketConfig extends SocketConfig{
         this.protocol = protocol;
     }
 
-
-    public void setHandshakePredicate(Predicate<HandshakeEvent> handshakePredicate) {
-        this.handshakePredicate = handshakePredicate;
+    public void setAuthPredicate(Predicate<AuthPredicateInfo> authPredicate) {
+        this.authPredicate = authPredicate;
     }
 
+    public Predicate<AuthPredicateInfo> getAuthPredicate() {
+        return authPredicate;
+    }
+
+    public LoggingHandler getLoggingHandler() {
+        return loggingHandler;
+    }
+
+    public void setLoggingHandler(LoggingHandler loggingHandler) {
+        this.loggingHandler = loggingHandler;
+    }
 }

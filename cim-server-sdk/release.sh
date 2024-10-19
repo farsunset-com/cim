@@ -1,1 +1,1 @@
-mvn clean install deploy -P release
+mvn clean install deploy -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true  -P release

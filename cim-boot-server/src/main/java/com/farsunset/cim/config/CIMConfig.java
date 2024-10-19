@@ -26,7 +26,8 @@ import com.farsunset.cim.acceptor.WebsocketAcceptor;
 import com.farsunset.cim.acceptor.config.SocketConfig;
 import com.farsunset.cim.acceptor.config.WebsocketConfig;
 import com.farsunset.cim.component.handler.annotation.CIMHandler;
-import com.farsunset.cim.component.predicate.HandshakePredicate;
+import com.farsunset.cim.component.logger.CIMEventLogger;
+import com.farsunset.cim.component.predicate.AuthPredicate;
 import com.farsunset.cim.config.properties.APNsProperties;
 import com.farsunset.cim.config.properties.CIMAppSocketProperties;
 import com.farsunset.cim.config.properties.CIMWebsocketProperties;
@@ -76,9 +77,9 @@ public class CIMConfig implements CIMRequestHandler, ApplicationListener<Applica
 
 	@Bean(destroyMethod = "destroy",initMethod = "bind")
 	@ConditionalOnProperty(name = {"cim.websocket.enable"},matchIfMissing = true)
-	public WebsocketAcceptor websocketAcceptor(CIMWebsocketProperties properties, HandshakePredicate handshakePredicate) {
+	public WebsocketAcceptor websocketAcceptor(CIMWebsocketProperties properties, AuthPredicate authPredicate, CIMEventLogger cimEventLogger) {
 		WebsocketConfig config = new WebsocketConfig();
-		config.setHandshakePredicate(handshakePredicate);
+		config.setAuthPredicate(authPredicate);
 		config.setPath(properties.getPath());
 		config.setPort(properties.getPort());
 		config.setProtocol(properties.getProtocol());
@@ -88,13 +89,13 @@ public class CIMConfig implements CIMRequestHandler, ApplicationListener<Applica
 		config.setWriteIdle(properties.getWriteIdle());
 		config.setReadIdle(properties.getReadIdle());
 		config.setMaxPongTimeout(properties.getMaxPongTimeout());
-
+		config.setLoggingHandler(cimEventLogger);
 		return new WebsocketAcceptor(config);
 	}
 
 	@Bean(destroyMethod = "destroy",initMethod = "bind")
 	@ConditionalOnProperty(name = {"cim.app.enable"},matchIfMissing = true)
-	public AppSocketAcceptor appSocketAcceptor(CIMAppSocketProperties properties) {
+	public AppSocketAcceptor appSocketAcceptor(CIMAppSocketProperties properties, CIMEventLogger cimEventLogger) {
 
 		SocketConfig config = new SocketConfig();
 		config.setPort(properties.getPort());
@@ -104,6 +105,7 @@ public class CIMConfig implements CIMRequestHandler, ApplicationListener<Applica
 		config.setWriteIdle(properties.getWriteIdle());
 		config.setReadIdle(properties.getReadIdle());
 		config.setMaxPongTimeout(properties.getMaxPongTimeout());
+		config.setLoggingHandler(cimEventLogger);
 
 		return new AppSocketAcceptor(config);
 	}

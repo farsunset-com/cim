@@ -99,8 +99,6 @@ class CIMConnectManager {
             return;
         }
 
-        android.os.Process.killProcess(android.os.Process.myPid());
-
         bossExecutor.execute(() -> {
 
             if (isConnected()) {
@@ -208,6 +206,12 @@ class CIMConnectManager {
 
     private void onSessionCreated() {
         LOGGER.sessionCreated(socketChannel);
+
+        Intent intent = new Intent();
+        intent.setPackage(context.getPackageName());
+        intent.setAction(IntentAction.ACTION_CONNECT_FINISHED);
+        context.sendBroadcast(intent);
+
     }
 
     private void onSessionClosed() {

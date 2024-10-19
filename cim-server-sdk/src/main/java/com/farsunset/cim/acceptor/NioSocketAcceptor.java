@@ -44,7 +44,7 @@ abstract class NioSocketAcceptor extends SimpleChannelInboundHandler<SentBody>{
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-	protected final ChannelHandler loggingHandler = new LoggingHandler();
+	protected final ChannelHandler defaultLoggingHandler = new LoggingHandler();
 
 	protected final SocketConfig socketConfig;
 

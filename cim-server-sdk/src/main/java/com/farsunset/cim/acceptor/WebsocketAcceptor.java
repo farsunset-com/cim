@@ -22,13 +22,13 @@
 package com.farsunset.cim.acceptor;
 
 import com.farsunset.cim.acceptor.config.WebsocketConfig;
+import com.farsunset.cim.auth.AuthHandler;
 import com.farsunset.cim.coder.json.TextMessageDecoder;
 import com.farsunset.cim.coder.json.TextMessageEncoder;
 import com.farsunset.cim.coder.protobuf.WebMessageDecoder;
 import com.farsunset.cim.coder.protobuf.WebMessageEncoder;
 import com.farsunset.cim.constant.WebsocketProtocol;
 import com.farsunset.cim.handler.IllegalRequestHandler;
-import com.farsunset.cim.handshake.HandshakeHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -69,14 +69,14 @@ public class WebsocketAcceptor extends NioSocketAcceptor {
 
 	private final WebsocketConfig config;
 
-	private final HandshakeHandler handshakeHandler;
+	private final AuthHandler authHandler;
 
 	private final ChannelHandler illegalRequestHandler = new IllegalRequestHandler();
 
 	public WebsocketAcceptor(WebsocketConfig config){
 		super(config);
 		this.config = config;
-		this.handshakeHandler = new HandshakeHandler(config.getHandshakePredicate());
+		this.authHandler = new AuthHandler(config.getAuthPredicate());
 	}
 
 	/**
@@ -97,8 +97,8 @@ public class WebsocketAcceptor extends NioSocketAcceptor {
 				ch.pipeline().addLast(new HttpServerCodec());
 				ch.pipeline().addLast(new ChunkedWriteHandler());
 				ch.pipeline().addLast(new HttpObjectAggregator(4 * 1024));
+				ch.pipeline().addLast(authHandler);
 				ch.pipeline().addLast(new WebSocketServerProtocolHandler(config.getPath(),true));
-				ch.pipeline().addLast(handshakeHandler);
 				if (config.getProtocol() == WebsocketProtocol.JSON){
 					ch.pipeline().addLast(new TextMessageDecoder());
 					ch.pipeline().addLast(new TextMessageEncoder());
@@ -107,7 +107,7 @@ public class WebsocketAcceptor extends NioSocketAcceptor {
 					ch.pipeline().addLast(new WebMessageEncoder());
 				}
 				ch.pipeline().addLast(new IdleStateHandler(config.getReadIdle().getSeconds(), config.getWriteIdle().getSeconds(), 0, TimeUnit.SECONDS));
-				ch.pipeline().addLast(loggingHandler);
+				ch.pipeline().addLast(socketConfig.getLoggingHandler() == null ? defaultLoggingHandler : socketConfig.getLoggingHandler() );
 				ch.pipeline().addLast(WebsocketAcceptor.this);
 				ch.pipeline().addLast(illegalRequestHandler);
 			}

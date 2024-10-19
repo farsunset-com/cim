@@ -63,7 +63,7 @@ public class AppSocketAcceptor extends NioSocketAcceptor {
 			public void initChannel(SocketChannel ch){
 				ch.pipeline().addLast(new AppMessageDecoder());
 				ch.pipeline().addLast(new AppMessageEncoder());
-				ch.pipeline().addLast(loggingHandler);
+				ch.pipeline().addLast(socketConfig.getLoggingHandler() == null ? defaultLoggingHandler : socketConfig.getLoggingHandler() );
 				ch.pipeline().addLast(new IdleStateHandler(socketConfig.getReadIdle().getSeconds(), socketConfig.getWriteIdle().getSeconds(), 0, TimeUnit.SECONDS));
 				ch.pipeline().addLast(AppSocketAcceptor.this);
 			}

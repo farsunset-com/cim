@@ -65,7 +65,7 @@ public class DefaultMessagePusher implements CIMMessagePusher {
 
 		/*
 		 * 通过发送redis广播，到集群中的每台实例，获得当前UID绑定了连接并推送
-		 * @see com.farsunset.hoxin.component.message.PushMessageListener
+		 * @see com.farsunset.cim.component.message.PushMessageListener
 		 */
 		signalRedisTemplate.push(message);
 

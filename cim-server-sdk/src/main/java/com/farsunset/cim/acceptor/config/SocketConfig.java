@@ -22,6 +22,7 @@
 package com.farsunset.cim.acceptor.config;
 
 import com.farsunset.cim.handler.CIMRequestHandler;
+import com.farsunset.cim.handler.LoggingHandler;
 
 import java.time.Duration;
 
@@ -67,6 +68,13 @@ public class SocketConfig {
      */
     private int maxPongTimeout = 1;
 
+    /**
+     * 自定义日志打印处理器，可不设置
+     */
+
+    private LoggingHandler loggingHandler;
+
+
     public Integer getPort() {
         return port == null || port <= 0 ? DEFAULT_PORT : port;
     }
@@ -85,6 +93,14 @@ public class SocketConfig {
 
     public boolean isEnable() {
         return enable;
+    }
+
+    public void setLoggingHandler(LoggingHandler loggingHandler) {
+        this.loggingHandler = loggingHandler;
+    }
+
+    public LoggingHandler getLoggingHandler() {
+        return loggingHandler;
     }
 
     public void setEnable(boolean enable) {
