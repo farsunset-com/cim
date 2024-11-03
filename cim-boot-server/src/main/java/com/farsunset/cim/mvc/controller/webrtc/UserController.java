@@ -19,7 +19,7 @@
  *                                                                                     *
  ***************************************************************************************
  */
-package com.farsunset.cim.mvc.controller.api;
+package com.farsunset.cim.mvc.controller.webrtc;
 
 
 import com.farsunset.cim.annotation.AccessToken;

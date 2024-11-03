@@ -19,7 +19,7 @@
  *                                                                                     *
  ***************************************************************************************
  */
-package com.farsunset.cim.mvc.controller.api;
+package com.farsunset.cim.mvc.controller.message;
 
 import com.farsunset.cim.component.push.DefaultMessagePusher;
 import com.farsunset.cim.model.Message;

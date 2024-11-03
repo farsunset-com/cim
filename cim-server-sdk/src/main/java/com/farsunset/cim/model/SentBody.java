@@ -61,6 +61,22 @@ public class SentBody implements Serializable {
 		return data.getOrDefault(key,defaultValue);
 	}
 
+	public long getLong(String key,long defaultValue) {
+		try {
+			return Long.parseLong(get(key));
+		} catch (final NumberFormatException nfe) {
+			return defaultValue;
+		}
+	}
+
+	public int getInt(String key,int defaultValue) {
+		try {
+			return Integer.parseInt(get(key));
+		} catch (final NumberFormatException nfe) {
+			return defaultValue;
+		}
+	}
+
 	public long getTimestamp() {
 		return timestamp;
 	}

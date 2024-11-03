@@ -83,6 +83,10 @@ public class ReplyBody implements Serializable, Transportable {
 		data.put(k, v);
 	}
 
+	public void put(String k, Number v) {
+		data.put(k, v.toString());
+	}
+
 	public String get(String k) {
 		return data.get(k);
 	}

@@ -39,25 +39,38 @@ import java.util.List;
 public class SwaggerConfig {
 
     @Bean
-    public Docket userApiDocket(ApiInfo apiInfo) {
+    public Docket messageApiDocket() {
         return new Docket(DocumentationType.OAS_30)
-                .apiInfo(apiInfo)
-                .groupName("客户端接口")
+                .apiInfo(new ApiInfoBuilder()
+                        .title("CIM Push Service APIs.")
+                        .description("消息发送相关接口")
+                        .version("3.0")
+                        .build())
+                .groupName("1、消息相关接口")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.farsunset.cim.mvc.controller.api"))
+                .apis(RequestHandlerSelectors.basePackage("com.farsunset.cim.mvc.controller.message"))
                 .build()
                 .securitySchemes(securitySchemes())
                 .securityContexts(securityContexts());
     }
 
     @Bean
-    public ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("CIM Push Service APIs.")
-                .description("CIM客户端接口文档")
-                .version("3.0")
-                .build();
+    public Docket webrtcApiDocket() {
+        return new Docket(DocumentationType.OAS_30)
+                .apiInfo(new ApiInfoBuilder()
+                        .title("CIM Push Service APIs.")
+                        .description("可用于webrtc通话信令接口")
+                        .version("3.0")
+                        .build())
+                .groupName("2、Webrtc相关接口")
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.farsunset.cim.mvc.controller.webrtc"))
+                .build()
+                .securitySchemes(securitySchemes())
+                .securityContexts(securityContexts());
     }
+
+
 
     private List<SecurityScheme> securitySchemes() {
         List<SecurityScheme> schemeList = new ArrayList<>();

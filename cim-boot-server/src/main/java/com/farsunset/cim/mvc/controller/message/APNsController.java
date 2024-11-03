@@ -19,7 +19,7 @@
  *                                                                                     *
  ***************************************************************************************
  */
-package com.farsunset.cim.mvc.controller.api;
+package com.farsunset.cim.mvc.controller.message;
 
 import com.farsunset.cim.service.SessionService;
 import io.swagger.annotations.Api;

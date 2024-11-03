@@ -45,7 +45,7 @@ public class TokenInterceptor implements HandlerInterceptor {
 	private AccessTokenService accessTokenService;
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
 		String token = request.getHeader(HEADER_TOKEN);
 
