@@ -56,9 +56,8 @@ public class AppMessageDecoder extends ByteToMessageDecoder {
 		 * 收到意外数据
 		 */
 		if (DataType.PONG.getValue() != type && type != DataType.SENT.getValue()){
-			/*
-			 消费掉无效数据
-			 */
+
+			// 消费掉无效数据
 			int length = buffer.readableBytes();
 			if (length > 0){
 				buffer.readBytes(new byte[length]);
@@ -67,9 +66,7 @@ public class AppMessageDecoder extends ByteToMessageDecoder {
 			return;
 		}
 
-		/*
-		 * 消息体不足3位，发生断包情况
-		 */
+		// 消息体不足3位，发生断包情况
 		if (buffer.readableBytes() < CIMConstant.DATA_HEADER_LENGTH) {
 			buffer.resetReaderIndex();
 			return;
@@ -110,7 +107,11 @@ public class AppMessageDecoder extends ByteToMessageDecoder {
 			return body;
 		}
 
-		return Pong.getInstance();
+		if (DataType.PONG.getValue() == type) {
+			return Pong.getInstance();
+		}
+
+		throw new ReadInvalidTypeException(type);
 	}
 
 	/**

@@ -28,6 +28,7 @@ import com.farsunset.cim.acceptor.config.WebsocketConfig;
 import com.farsunset.cim.component.handler.annotation.CIMHandler;
 import com.farsunset.cim.component.logger.CIMEventLogger;
 import com.farsunset.cim.component.predicate.AuthPredicate;
+import com.farsunset.cim.component.predicate.BlacklistPredicate;
 import com.farsunset.cim.config.properties.APNsProperties;
 import com.farsunset.cim.config.properties.CIMAppSocketProperties;
 import com.farsunset.cim.config.properties.CIMWebsocketProperties;
@@ -77,8 +78,9 @@ public class CIMConfig implements CIMRequestHandler, ApplicationListener<Applica
 
 	@Bean(destroyMethod = "destroy",initMethod = "bind")
 	@ConditionalOnProperty(name = {"cim.websocket.enable"},matchIfMissing = true)
-	public WebsocketAcceptor websocketAcceptor(CIMWebsocketProperties properties, AuthPredicate authPredicate, CIMEventLogger cimEventLogger) {
+	public WebsocketAcceptor websocketAcceptor(CIMWebsocketProperties properties, AuthPredicate authPredicate, BlacklistPredicate blacklistPredicate, CIMEventLogger cimEventLogger) {
 		WebsocketConfig config = new WebsocketConfig();
+		config.setBlacklistPredicate(blacklistPredicate);
 		config.setAuthPredicate(authPredicate);
 		config.setPath(properties.getPath());
 		config.setPort(properties.getPort());
@@ -95,7 +97,7 @@ public class CIMConfig implements CIMRequestHandler, ApplicationListener<Applica
 
 	@Bean(destroyMethod = "destroy",initMethod = "bind")
 	@ConditionalOnProperty(name = {"cim.app.enable"},matchIfMissing = true)
-	public AppSocketAcceptor appSocketAcceptor(CIMAppSocketProperties properties, CIMEventLogger cimEventLogger) {
+	public AppSocketAcceptor appSocketAcceptor(CIMAppSocketProperties properties,BlacklistPredicate blacklistPredicate, CIMEventLogger cimEventLogger) {
 
 		SocketConfig config = new SocketConfig();
 		config.setPort(properties.getPort());
@@ -106,6 +108,7 @@ public class CIMConfig implements CIMRequestHandler, ApplicationListener<Applica
 		config.setReadIdle(properties.getReadIdle());
 		config.setMaxPongTimeout(properties.getMaxPongTimeout());
 		config.setLoggingHandler(cimEventLogger);
+		config.setBlacklistPredicate(blacklistPredicate);
 
 		return new AppSocketAcceptor(config);
 	}

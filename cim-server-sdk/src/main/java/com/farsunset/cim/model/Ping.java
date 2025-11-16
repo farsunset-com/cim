@@ -32,7 +32,7 @@ import java.io.Serializable;
 public class Ping implements Serializable, Transportable {
 
 	private static final long serialVersionUID = 1L;
-	private static final String TAG = "PING";
+
 	private static final String DATA = "PING";
 	private static final Ping INSTANCE = new Ping();
 
@@ -44,7 +44,7 @@ public class Ping implements Serializable, Transportable {
 
 	@Override
 	public String toString() {
-		return TAG;
+		return DATA;
 	}
 
 	@Override

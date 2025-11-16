@@ -25,6 +25,7 @@ import com.farsunset.cim.handler.CIMRequestHandler;
 import com.farsunset.cim.handler.LoggingHandler;
 
 import java.time.Duration;
+import java.util.function.Predicate;
 
 
 /**
@@ -38,11 +39,6 @@ public class SocketConfig {
     TVL协议socket端口
      */
     private Integer port;
-
-    /**
-     * socket消息处理器
-     */
-    private CIMRequestHandler outerRequestHandler;
 
     /**
     是否启用TVL协议socket
@@ -61,7 +57,6 @@ public class SocketConfig {
      */
     private Duration readIdle = Duration.ofSeconds(60);
 
-
     /**
      长链接最大允许心跳响应超时次数
      达到该次数则 服务端断开链接
@@ -69,9 +64,18 @@ public class SocketConfig {
     private int maxPongTimeout = 1;
 
     /**
+     * socket消息处理器
+     */
+    private CIMRequestHandler outerRequestHandler;
+
+    /**
+     * IP黑名单处理
+     */
+    private Predicate<String> blacklistPredicate;
+
+    /**
      * 自定义日志打印处理器，可不设置
      */
-
     private LoggingHandler loggingHandler;
 
 
@@ -83,24 +87,9 @@ public class SocketConfig {
         this.port = port;
     }
 
-    public CIMRequestHandler getOuterRequestHandler() {
-        return outerRequestHandler;
-    }
-
-    public void setOuterRequestHandler(CIMRequestHandler outerRequestHandler) {
-        this.outerRequestHandler = outerRequestHandler;
-    }
 
     public boolean isEnable() {
         return enable;
-    }
-
-    public void setLoggingHandler(LoggingHandler loggingHandler) {
-        this.loggingHandler = loggingHandler;
-    }
-
-    public LoggingHandler getLoggingHandler() {
-        return loggingHandler;
     }
 
     public void setEnable(boolean enable) {
@@ -129,5 +118,29 @@ public class SocketConfig {
 
     public void setMaxPongTimeout(int maxPongTimeout) {
         this.maxPongTimeout = maxPongTimeout;
+    }
+
+    public CIMRequestHandler getOuterRequestHandler() {
+        return outerRequestHandler;
+    }
+
+    public void setOuterRequestHandler(CIMRequestHandler outerRequestHandler) {
+        this.outerRequestHandler = outerRequestHandler;
+    }
+
+    public void setLoggingHandler(LoggingHandler loggingHandler) {
+        this.loggingHandler = loggingHandler;
+    }
+
+    public LoggingHandler getLoggingHandler() {
+        return loggingHandler;
+    }
+
+    public Predicate<String> getBlacklistPredicate() {
+        return blacklistPredicate;
+    }
+
+    public void setBlacklistPredicate(Predicate<String> blacklistPredicate) {
+        this.blacklistPredicate = blacklistPredicate;
     }
 }

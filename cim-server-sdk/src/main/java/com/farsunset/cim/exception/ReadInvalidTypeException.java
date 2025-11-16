@@ -21,6 +21,9 @@
  */
 package com.farsunset.cim.exception;
 
+/**
+ * 通常是端口受到非法访问，发送了意外的数据
+ */
 public class ReadInvalidTypeException extends RuntimeException{
 
     public ReadInvalidTypeException(byte type) {

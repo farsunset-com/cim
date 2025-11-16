@@ -43,13 +43,13 @@ class CIMCacheManager {
 
     public static final String KEY_CIM_CONNECTION_STATE = "KEY_CIM_CONNECTION_STATE";
 
+    public static final String KEY_NTC_SWITCH = "KEY_NTC_SWITCH";
 
     public static final String KEY_NTC_CHANNEL_NAME = "KEY_NTC_CHANNEL_NAME";
 
     public static final String KEY_NTC_CHANNEL_MESSAGE = "KEY_NTC_CHANNEL_MESSAGE";
 
-    public static final String KEY_NTC_CHANNEL_ICON = "KEY_NTC_CHANNEL_ICON";
-
+    public static final String KEY_NTC_CHANNEL_ICON = "KEY_NTC_ICON";
 
     public static final String CONTENT_URI = "content://%s.cim.provider";
 

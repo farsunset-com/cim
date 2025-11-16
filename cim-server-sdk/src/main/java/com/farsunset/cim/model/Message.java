@@ -43,10 +43,12 @@ public class Message implements Serializable, Transportable,Cloneable {
 	 * 消息类型，用户自定义消息类别
 	 */
 	private String action;
+
 	/**
 	 * 消息标题
 	 */
 	private String title;
+
 	/**
 	 * 消息类容，于action 组合为任何类型消息，content 根据 format 可表示为 text,json ,xml数据格式
 	 */
@@ -56,6 +58,7 @@ public class Message implements Serializable, Transportable,Cloneable {
 	 * 消息发送者账号
 	 */
 	private String sender;
+
 	/**
 	 * 消息发送者接收者
 	 */
@@ -71,6 +74,9 @@ public class Message implements Serializable, Transportable,Cloneable {
 	 */
 	private String extra;
 
+	/**
+	 * 消息产生时间戳(13位)
+	 */
 	private long timestamp;
 
 	public Message() {
@@ -195,7 +201,6 @@ public class Message implements Serializable, Transportable,Cloneable {
 		/*
 		 * 下面字段可能为空
 		 */
-
 		if (receiver != null){
 			builder.setReceiver(receiver);
 		}

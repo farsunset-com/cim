@@ -23,6 +23,8 @@ package com.farsunset.cim.acceptor;
 
 import com.farsunset.cim.acceptor.config.WebsocketConfig;
 import com.farsunset.cim.auth.AuthHandler;
+import com.farsunset.cim.auth.BlacklistHandler;
+import com.farsunset.cim.coder.ProxyMessageHandler;
 import com.farsunset.cim.coder.json.TextMessageDecoder;
 import com.farsunset.cim.coder.json.TextMessageEncoder;
 import com.farsunset.cim.coder.protobuf.WebMessageDecoder;
@@ -62,7 +64,7 @@ public class WebsocketAcceptor extends NioSocketAcceptor {
 			"* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\n" +
 			"*                                                                                   *\n" +
 			"*                                                                                   *\n" +
-			"*             Websocket Server started on port {} for [protobuf] mode.           *\n" +
+			"*             Websocket Server started on port {} for [PROTOBUF] mode.           *\n" +
 			"*                                                                                   *\n" +
 			"*                                                                                   *\n" +
 			"* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\n";
@@ -97,6 +99,8 @@ public class WebsocketAcceptor extends NioSocketAcceptor {
 				ch.pipeline().addLast(new HttpServerCodec());
 				ch.pipeline().addLast(new ChunkedWriteHandler());
 				ch.pipeline().addLast(new HttpObjectAggregator(4 * 1024));
+                ch.pipeline().addLast(new ProxyMessageHandler());
+                ch.pipeline().addLast(blacklistHandler);
 				ch.pipeline().addLast(authHandler);
 				ch.pipeline().addLast(new WebSocketServerProtocolHandler(config.getPath(),true));
 				if (config.getProtocol() == WebsocketProtocol.JSON){

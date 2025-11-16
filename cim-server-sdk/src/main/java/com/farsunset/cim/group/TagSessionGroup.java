@@ -28,10 +28,15 @@ import io.netty.channel.Channel;
 
 /**
  * 基于内存管理的channel组
- * 根据tag管理
+ * 根据tag管理，多个链接共用一个tag
  */
 public class TagSessionGroup extends SessionGroup {
 
+    /**
+     * 返回Nio链接的标识
+     * @param channel Nio链接
+     * @return 标签
+     */
     @Override
     protected String getKey(Channel channel){
         return channel.attr(ChannelAttr.TAG).get();

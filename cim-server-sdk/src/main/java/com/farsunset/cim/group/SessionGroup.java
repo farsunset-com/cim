@@ -48,13 +48,18 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
         }
     };
 
+    /**
+     * 返回Nio链接的标识
+     * @param channel Nio链接
+     * @return UID标识
+     */
     protected String getKey(Channel channel){
         return channel.attr(ChannelAttr.UID).get();
     }
 
     /**
      * 将channel从内存容器中删除
-     * @param channel
+     * @param channel Nio链接
      */
     public void remove(Channel channel){
 
@@ -77,7 +82,7 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 将channel加入内存容器中删除
-     * @param channel
+     * @param channel Nio链接
      */
     public void add(Channel channel){
 
@@ -101,8 +106,8 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 查找到key关联的channel并写入消息体
-     * @param key
-     * @param message
+     * @param key 链接标识(一般是用户ID)
+     * @param message 消息体
      */
     public void write(String key, Message message){
         this.write(key, message, channel -> true);
@@ -110,8 +115,8 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 查找到key关联的channel并写入消息体
-     * @param key
-     * @param message
+     * @param key 链接标识(一般是用户ID)
+     * @param message 消息体
      * @param matcher channel筛选条件
      */
     public void write(String key, Message message, Predicate<Channel> matcher){
@@ -120,9 +125,9 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 查找到key关联的channel并写入消息体
-     * @param key
-     * @param message
-     * @param excludedSet 排除的UID集合
+     * @param key 链接标识(一般是用户ID)
+     * @param message 消息体
+     * @param excludedSet 排除的标识集合
      */
     public void write(String key, Message message, Collection<String> excludedSet){
         Predicate<Channel> predicate = new ExcludedUidPredicate(excludedSet);
@@ -131,7 +136,7 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 查找到消息接收者关联的channel并写入消息体
-     * @param message
+     * @param message 消息体
      */
     public void write(Message message){
         this.write(message.getReceiver(),message);
@@ -139,8 +144,8 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 通过key查找channel集合
-     * @param key
-     * @return
+     * @param key 链接标识(一般是用户ID)
+     * @return 匹配的链接集合
      */
     public Collection<Channel> find(String key){
         return this.getOrDefault(key,Collections.emptyList());
@@ -148,9 +153,9 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 通过key查找channel集合
-     * @param key
+     * @param key 链接标识(一般是用户ID)
      * @param matcher 过滤条件
-     * @return
+     * @return 匹配的链接集合
      */
     public Collection<Channel> find(String key,Predicate<Channel> matcher){
         return this.find(key)
@@ -161,9 +166,9 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 通过key查找channel集合
-     * @param key
+     * @param key 链接标识(一般是用户ID)
      * @param channel 连接终端类型过滤条件
-     * @return
+     * @return 匹配的链接集合
      */
     public Collection<Channel> find(String key,String... channel){
         List<String> channels = Arrays.asList(channel);
@@ -172,9 +177,9 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 通过key查找channel集合
-     * @param key
+     * @param key 链接标识(一般是用户ID)
      * @param channelSet 连接终端类型过滤条件
-     * @return
+     * @return 匹配的链接集合
      */
     public Collection<Channel> find(String key,Collection<String> channelSet){
         Predicate<Channel> predicate = new ChannelPredicate(channelSet);
@@ -183,8 +188,8 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
     /**
      * 检查该channel是否存在内存管理当中
-     * @param channel
-     * @return
+     * @param channel NIO链接
+     * @return 是否存储在了内存中
      */
     public boolean isManaged(Channel channel){
 

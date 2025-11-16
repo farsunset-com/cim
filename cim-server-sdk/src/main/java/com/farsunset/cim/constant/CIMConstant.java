@@ -31,8 +31,14 @@ public interface CIMConstant {
 	 */
 	byte DATA_HEADER_LENGTH = 3;
 
+	/**
+	 * 内置的 SentBody key 链接关闭是通知应用层处理
+	 */
 	String CLIENT_CONNECT_CLOSED = "client_closed";
 
+	/**
+	 * 内置的握手失败ReplyBody key 输入给客户端
+	 */
 	String CLIENT_HANDSHAKE = "client_handshake";
 
 }

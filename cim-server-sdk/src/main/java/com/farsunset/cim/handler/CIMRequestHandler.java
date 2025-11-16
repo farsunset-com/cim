@@ -21,12 +21,12 @@
  */
 package com.farsunset.cim.handler;
 
-/**
- *  请求处理接口,所有的请求实现必须实现此接口
- */
 import com.farsunset.cim.model.SentBody;
 import io.netty.channel.Channel;
 
+/**
+ *  请求处理接口,所有的请求实现必须实现此接口
+ */
 public interface CIMRequestHandler {
 
 	/**

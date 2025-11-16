@@ -9,37 +9,27 @@ import "./replybody.js";
 import "./sentbody.js";
 let APP_VERSION = "1.0.0";
 let APP_CHANNEL = 'app'
-const APP_PACKAGE = "com.farsunset.cim";
 const MESSAGE = 2;
 const REPLY_BODY = 4;
 const SENT_BODY = 3;
 const PING = 1;
 const PONG = 0;
 const DATA_HEADER_LENGTH = 1;
+/*80, 79, 78, 71是 PONG 字符串转换字节的数组*/
 const PONG_BODY = new Uint8Array([80, 79, 78, 71]);
 export default class Socket {
 	constructor(option = {}) {
 		this._url = option.url;
 		// 是否设置重新连接
 		this._reconnection = option.reconnection || true;
-		// 是否建立缓存池,默认true，如果建立缓存池，会将因为程序错误导致未发送成功的消息发送
-		this._buffer = option.buffer || true;
 		/// on方法注册的事件
 		this.on_register = {};
 		// 是否已成功连接
 		this._connectioned = false;
-		// 缓存池
-		this._buffer_register = [];
-		// 发送缓存池的数据
-		this._auto_emit_buffer_data = option.autoEmitBuffer || false;
 		// 被动断开
 		this.closed = false;
 		// 开始重连
 		this.begin_reconnection = false;
-		// 多少毫秒发送一次心跳
-		this._heart_rate = option.heartRate > 0 ? option.heartRate : 60000;
-		// 后端心跳字段
-		this._heart_rate_type = option.heartRateType || "HEARTBEAT";
 		this.init();
 	}
 
@@ -82,20 +72,7 @@ export default class Socket {
 		});
 	}
 
-	/**
-	 * 给缓存池添加记录
-	 */
-	async addBuffer(data = {}) {
-		const da = JSON.stringify(data);
-		this._buffer_register.push(data);
-	}
 
-	/**
-	 * 获取缓存池
-	 */
-	async getBuffer() {
-		return this._buffer_register;
-	}
 
 	/**
 	 * 获取连接状态
@@ -113,35 +90,7 @@ export default class Socket {
 		this.SocketTask && this._connectioned && this.SocketTask.close();
 	}
 
-	/**
-	 * 发送消息
-	 */
-	async emit(event, data = {}) {
-		if (
-			this.getType(event) === "[object Object]" &&
-			this.getType(event) === "[object String]"
-		) {
-			let e = data;
-			data = event;
-			event = e;
-		}
-		if (this.SocketTask) {
-			const da = {
-				type: event,
-				data: data,
-			};
-			this.SocketTask.send({
-				data: JSON.stringify(da),
-				fail: (e) => {
-					// 消息发送失败时将消息缓存
-					this.addBuffer(da);
-					throw new UniSocketError("Failed to send message to server... " + e);
-				},
-			});
-		} else {
-			throw new UniSocketError("The socket is not initialization or connection error!");
-		}
-	}
+	
 	// 绑定账号
 	bindAccount(account) {
 		console.log(account)
@@ -187,7 +136,6 @@ export default class Socket {
 			body.getDataMap().set("channel", APP_CHANNEL);
 			body.getDataMap().set("appVersion", APP_VERSION);
 			body.getDataMap().set("osVersion", browser.version);
-			body.getDataMap().set("packageName", APP_PACKAGE);
 			body.getDataMap().set("deviceId", deviceId);
 			body.getDataMap().set("deviceName", browser.name);
 			body.getDataMap().set("language", browser.appLanguage);
@@ -200,24 +148,15 @@ export default class Socket {
 		}
 
 	}
-	//绑定tag
-	async bindRoomTag(tag) { 
-		if (this._connectioned) {
-			let body = new proto.com.farsunset.cim.sdk.web.model.SentBody();
-			if (tag) {
-				body.setKey("client_set_tag");
-				body.getDataMap().set("tag", tag);
-			} else body.setKey("client_remove_tag");
-			this.sendRequest(body)
-		}
-	}
+ 
 	// 发送缓存池数据
 	async sendRequest(body) {
 		let data = body.serializeBinary();
 		let protobuf = new Uint8Array(data.length + 1);
 		protobuf[0] = SENT_BODY;
 		protobuf.set(data, 1);
-		const buffer = protobuf
+		//微信小程序无法使用Uint8Array 需要转换一下
+		const buffer = new Uint8Array(protobuf).buffer;
 		this.SocketTask.send({
 			data: buffer,
 			success: (res) => {
@@ -269,17 +208,7 @@ export default class Socket {
 		}
 	}
 
-	/**
-	 * 开始发送心跳
-	 */
-	async beginSendHeartBeat() {
-		this._heart_rate_interval = setInterval((res) => {
-			this.emit(this._heart_rate_type);
-			this.emitMessageToTargetEventByName("HEARTBEAT", {
-				msg: "Send a heartbeat to the server...",
-			});
-		}, this._heart_rate);
-	}
+
 
 	/**
 	 * 将心跳结束
@@ -374,8 +303,9 @@ export default class Socket {
 			pong[0] = PONG;
 			pong.set(PONG_BODY, 1);
 			// console.log('心跳')
+			const buffer = new Uint8Array(pong).buffer;
 			this.SocketTask.send({
-				data: pong,
+				data: buffer,
 				fail: (e) => {
 					throw new UniSocketError("Failed to send message to server... " + e);
 				},

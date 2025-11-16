@@ -27,17 +27,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * java |android 客户端请求结构
- *
+ * 客户端通过长连接请求结构
  */
 public class SentBody implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * 请求key
+	 */
 	private String key;
 
+	/**
+	 * 请求数据
+	 */
 	private final Map<String, String> data = new HashMap<>();
 
+	/**
+	 * 客户端产生的时间戳(13位)
+	 */
 	private long timestamp;
 
 	public Map<String, String> getData() {

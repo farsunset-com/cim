@@ -22,6 +22,8 @@
 package com.farsunset.cim.acceptor;
 
 import com.farsunset.cim.acceptor.config.SocketConfig;
+import com.farsunset.cim.auth.BlacklistHandler;
+import com.farsunset.cim.coder.ProxyMessageHandler;
 import com.farsunset.cim.coder.protobuf.AppMessageDecoder;
 import com.farsunset.cim.coder.protobuf.AppMessageEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -29,6 +31,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
@@ -61,6 +64,9 @@ public class AppSocketAcceptor extends NioSocketAcceptor {
 		bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
 			@Override
 			public void initChannel(SocketChannel ch){
+                ch.pipeline().addLast(new HAProxyMessageDecoder());
+                ch.pipeline().addLast(new ProxyMessageHandler());
+                ch.pipeline().addLast(blacklistHandler);
 				ch.pipeline().addLast(new AppMessageDecoder());
 				ch.pipeline().addLast(new AppMessageEncoder());
 				ch.pipeline().addLast(socketConfig.getLoggingHandler() == null ? defaultLoggingHandler : socketConfig.getLoggingHandler() );

@@ -6,7 +6,7 @@
 
     <groupId>com.farsunset</groupId>
     <artifactId>cim-android-sdk</artifactId>
-    <version>4.2.13</version>
+    <version>4.2.15</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -29,7 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <google.protobuf.version>3.22.0</google.protobuf.version>
+        <google.protobuf.version>3.25.4</google.protobuf.version>
     </properties>
 
     <dependencies>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-javalite</artifactId>
-            <version>3.22.0</version>
+            <version>${google.protobuf.version}</version>
         </dependency>
 
 
@@ -45,7 +45,7 @@
             <groupId>android</groupId>
             <artifactId>android</artifactId>
             <scope>system</scope>
-            <version>10.0.0</version>
+            <version>15.0.0</version>
             <systemPath>${project.basedir}/libs/android.jar</systemPath>
         </dependency>
 
@@ -61,10 +61,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.3.1</version>
+                        <version>2.2.1</version>
                         <executions>
                             <execution>
-                                <phase>package</phase>
+                                <id>attach-sources</id>
                                 <goals>
                                     <goal>jar-no-fork</goal>
                                 </goals>
@@ -123,9 +123,14 @@
                     </plugin>
                     <!--Release -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.9.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

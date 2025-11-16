@@ -152,7 +152,7 @@ public abstract class CIMEventBroadcastReceiver extends BroadcastReceiver {
     private void connect(long delay) {
         Intent serviceIntent = new Intent(context, CIMPushService.class);
         serviceIntent.putExtra(BundleKey.KEY_DELAYED_TIME, delay);
-        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CIM_CONNECTION);
+        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
         CIMPushManager.startService(context, serviceIntent);
     }
 

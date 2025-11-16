@@ -48,7 +48,6 @@ public class IllegalRequestHandler extends SimpleChannelInboundHandler<FullHttpR
         /*
          走到这里意味着来自非法请求错误的路径导致，需要关闭链接，
          */
-
         String path  = request.uri();
 
         LOGGER.warn("收到无效的请求地址,path:{} header:{}",path,request.headers());

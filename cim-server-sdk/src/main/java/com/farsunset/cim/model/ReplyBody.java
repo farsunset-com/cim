@@ -30,8 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 请求应答对象
- *
+ * 长连接请求应答对象
  */
 public class ReplyBody implements Serializable, Transportable {
 
@@ -57,6 +56,9 @@ public class ReplyBody implements Serializable, Transportable {
 	 */
 	private final Map<String, String> data = new HashMap<>();
 
+	/**
+	 * 服务端产生时间戳(13位)
+	 */
 	private long timestamp;
 
 	public ReplyBody() {

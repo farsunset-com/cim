@@ -1,6 +1,6 @@
 ## 收费产品介绍
 
-#### 布咕(https://gitee.com/farsunset/bugu-im)
+#### 布咕(https://farsunset.com/)
 布咕是基于CIM组件开发的一整套完整的产品,面向所有人开放注册的试用场景。具有丰富的功能，音视频会议，聊天、群组、好友，组织架构、公众号、朋友圈等功能。不依赖任何第三方云服务，可以私有化部署。
 
 
@@ -57,7 +57,7 @@ CIM采用业内主流开源技术构建，易于扩展和使用，并完美支�
 <dependency>
    <groupId>com.farsunset</groupId>
    <artifactId>cim-server-sdk-netty</artifactId>
-   <version>4.2.8</version>
+   <version>4.3.0</version>
 </dependency>
 
 ```
@@ -65,5 +65,5 @@ CIM采用业内主流开源技术构建，易于扩展和使用，并完美支�
 android端sdk引用
 
 ```
-implementation "com.farsunset:cim-android-sdk:4.2.13"
+implementation "com.farsunset:cim-android-sdk:4.2.15"
 ```

@@ -67,7 +67,7 @@ public class CIMPushManager {
 
 
         Intent serviceIntent = new Intent(context, CIMPushService.class);
-        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CIM_CONNECTION);
+        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
         startService(context, serviceIntent);
 
     }
@@ -172,7 +172,7 @@ public class CIMPushManager {
         }
 
         Intent serviceIntent = new Intent(context, CIMPushService.class);
-        serviceIntent.setAction(ServiceAction.ACTION_CIM_CONNECTION_PONG);
+        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
         startService(context, serviceIntent);
     }
 
@@ -191,7 +191,6 @@ public class CIMPushManager {
         sent.put("deviceName", Build.MODEL);
         sent.put("appVersion", getVersionName(context));
         sent.put("osVersion", Build.VERSION.RELEASE);
-        sent.put("packageName", context.getPackageName());
         sent.put("language", getLanguage());
         sent.setTimestamp(System.currentTimeMillis());
         sendRequest(context, sent);
@@ -240,7 +239,7 @@ public class CIMPushManager {
         CIMCacheManager.putBoolean(context, CIMCacheManager.KEY_MANUAL_STOP, true);
 
         Intent serviceIntent = new Intent(context, CIMPushService.class);
-        serviceIntent.setAction(ServiceAction.ACTION_CLOSE_CIM_CONNECTION);
+        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
         startService(context, serviceIntent);
 
     }
@@ -254,7 +253,7 @@ public class CIMPushManager {
         CIMCacheManager.remove(context, CIMCacheManager.KEY_UID);
 
         Intent serviceIntent = new Intent(context, CIMPushService.class);
-        serviceIntent.setAction(ServiceAction.ACTION_DESTROY_CIM_SERVICE);
+        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
         startService(context, serviceIntent);
 
     }

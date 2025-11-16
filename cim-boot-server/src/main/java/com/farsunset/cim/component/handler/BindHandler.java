@@ -79,6 +79,11 @@ public class BindHandler implements CIMRequestHandler {
 		channel.attr(ChannelAttr.DEVICE_ID).set(session.getDeviceId());
 		channel.attr(ChannelAttr.LANGUAGE).set(session.getLanguage());
 
+        /*
+         * 可获取到客户端真实IP
+         * String ip = channel.attr(ChannelAttr.REMOTE_IP).get();
+         */
+
 		/*
 		 *存储到数据库
 		 */

@@ -22,8 +22,10 @@
 package com.farsunset.cim.acceptor;
 
 import com.farsunset.cim.acceptor.config.SocketConfig;
+import com.farsunset.cim.auth.BlacklistHandler;
 import com.farsunset.cim.constant.CIMConstant;
 import com.farsunset.cim.constant.ChannelAttr;
+import com.farsunset.cim.handler.IllegalRequestHandler;
 import com.farsunset.cim.handler.LoggingHandler;
 import com.farsunset.cim.model.Ping;
 import com.farsunset.cim.model.SentBody;
@@ -48,12 +50,16 @@ abstract class NioSocketAcceptor extends SimpleChannelInboundHandler<SentBody>{
 
 	protected final SocketConfig socketConfig;
 
+	protected final BlacklistHandler blacklistHandler;
+
 	private final EventLoopGroup bossGroup;
 	private final EventLoopGroup workerGroup;
 
 	protected NioSocketAcceptor(SocketConfig socketConfig){
 
 		this.socketConfig = socketConfig;
+
+		this.blacklistHandler = new BlacklistHandler(socketConfig.getBlacklistPredicate());
 
 		ThreadFactory bossThreadFactory = r -> {
 			Thread thread = new Thread(r);

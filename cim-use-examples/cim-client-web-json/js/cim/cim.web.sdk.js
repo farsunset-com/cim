@@ -8,7 +8,6 @@ const CIM_URI = "ws://" + CIM_HOST + ":" + CIM_PORT;
 
 const APP_VERSION = "1.0.0";
 const APP_CHANNEL = "web";
-const APP_PACKAGE = "com.farsunset.cim";
 
 /*
  *特殊的消息类型，代表被服务端强制下线
@@ -69,7 +68,6 @@ CIMPushManager.bind = function (account) {
     body.data.uid = account;
     body.data.channel = APP_CHANNEL;
     body.data.appVersion = APP_VERSION;
-    body.data.packageName = APP_PACKAGE;
     body.data.deviceId = deviceId;
     body.data.deviceName = browser;
 
