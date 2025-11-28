@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.farsunset.cim.R;
 import com.farsunset.cim.adapter.holder.MessageViewHolder;
-import com.farsunset.cim.sdk.android.model.Message;
+import com.farsunset.cim.model.Message;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

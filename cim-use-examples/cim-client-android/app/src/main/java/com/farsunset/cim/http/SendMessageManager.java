@@ -25,7 +25,7 @@ import android.widget.Toast;
 
 import com.farsunset.cim.BuildConfig;
 import com.farsunset.cim.app.CIMApplication;
-import com.farsunset.cim.sdk.android.model.Message;
+import com.farsunset.cim.model.Message;
 import com.google.gson.Gson;
 
 import java.util.concurrent.TimeUnit;

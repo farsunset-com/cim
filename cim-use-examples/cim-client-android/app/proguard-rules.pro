@@ -19,7 +19,7 @@
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
 
--keep class com.farsunset.cim.sdk.android.model.** {*;}
+-keep class com.farsunset.cim.model.** {*;}
 
 -keep public class * extends android.content.ContentProvider
 -keep public class * extends android.app.AppCompatActivity

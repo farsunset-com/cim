@@ -6,6 +6,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.haproxy.HAProxyMessage;
 import io.netty.handler.codec.http.FullHttpRequest;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 /**
  * 解析获取真实客户端IP
@@ -22,14 +23,14 @@ public class ProxyMessageHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest httpRequest = (FullHttpRequest) msg;
-            ctx.channel().attr(ChannelAttr.REMOTE_IP).set(getRemoteIp(httpRequest));
+            ctx.channel().attr(ChannelAttr.REMOTE_IP).set(getRemoteIp(httpRequest,ctx));
         }
 
         ctx.fireChannelRead(msg);
     }
 
 
-    private String getRemoteIp(FullHttpRequest request) {
+    private String getRemoteIp(FullHttpRequest request,ChannelHandlerContext ctx) {
         // 1. 尝试从 X-Forwarded-For 头部获取
         String xForwardedFor = request.headers().get("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -74,7 +75,7 @@ public class ProxyMessageHandler extends ChannelInboundHandlerAdapter {
                 return clientIp;
             }
         }
-        return null;
+        return getRemoteHostAddress(ctx);
     }
 
     private boolean isValidIp(String ip) {
@@ -89,5 +90,12 @@ public class ProxyMessageHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private String getRemoteHostAddress(ChannelHandlerContext ctx) {
+        if (ctx.channel().remoteAddress() instanceof InetSocketAddress) {
+            return ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
+        }
+        return null;
     }
 }

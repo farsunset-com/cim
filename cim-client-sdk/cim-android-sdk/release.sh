@@ -1,1 +1,1 @@
-mvn clean install deploy -P release
+./gradlew clean publishToMavenCentral

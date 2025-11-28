@@ -15,14 +15,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.farsunset.cim.BuildConfig;
 import com.farsunset.cim.R;
-import com.farsunset.cim.sdk.android.CIMEventListener;
-import com.farsunset.cim.sdk.android.CIMListenerManager;
-import com.farsunset.cim.sdk.android.CIMPushManager;
-import com.farsunset.cim.sdk.android.constant.CIMConstant;
-import com.farsunset.cim.sdk.android.constant.RequestKey;
-import com.farsunset.cim.sdk.android.model.Message;
-import com.farsunset.cim.sdk.android.model.ReplyBody;
-import com.farsunset.cim.sdk.android.model.SentBody;
+import com.farsunset.cim.CIMEventListener;
+import com.farsunset.cim.CIMListenerManager;
+import com.farsunset.cim.CIMPushManager;
+import com.farsunset.cim.constant.CIMConstant;
+import com.farsunset.cim.constant.RequestKey;
+import com.farsunset.cim.model.Message;
+import com.farsunset.cim.model.ReplyBody;
+import com.farsunset.cim.model.SentBody;
 import com.farsunset.cim.widget.RainbowBallView;
 
 public class LoginActivity extends AppCompatActivity implements CIMEventListener {

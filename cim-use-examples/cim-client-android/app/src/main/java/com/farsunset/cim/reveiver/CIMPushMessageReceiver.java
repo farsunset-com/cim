@@ -32,10 +32,10 @@ import androidx.core.content.ContextCompat;
 import com.farsunset.cim.R;
 import com.farsunset.cim.activity.MessageActivity;
 import com.farsunset.cim.app.CIMApplication;
-import com.farsunset.cim.sdk.android.CIMEventBroadcastReceiver;
-import com.farsunset.cim.sdk.android.CIMListenerManager;
-import com.farsunset.cim.sdk.android.model.Message;
-import com.farsunset.cim.sdk.android.model.ReplyBody;
+import com.farsunset.cim.CIMEventBroadcastReceiver;
+import com.farsunset.cim.CIMListenerManager;
+import com.farsunset.cim.model.Message;
+import com.farsunset.cim.model.ReplyBody;
 
 
 /**
@@ -48,7 +48,7 @@ public final class CIMPushMessageReceiver extends CIMEventBroadcastReceiver {
      * 当收到消息时调用此方法
      */
     @Override
-    public void onMessageReceived(com.farsunset.cim.sdk.android.model.Message sdkMessage, Intent intent) {
+    public void onMessageReceived(com.farsunset.cim.model.Message sdkMessage, Intent intent) {
 
         /*
          * 通知到每个页面接收消息

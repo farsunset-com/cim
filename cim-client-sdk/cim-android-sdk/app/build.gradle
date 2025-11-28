@@ -1,0 +1,70 @@
+plugins {
+    id 'com.android.library'
+    id 'com.vanniktech.maven.publish'
+    id 'signing'
+}
+
+android {
+    namespace 'com.farsunset'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 23
+        targetSdk 35
+        versionCode 431
+        versionName "4.3.1"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+
+mavenPublishing {
+    coordinates("com.farsunset", "cim-android-sdk", android.defaultConfig.versionName)
+    pom {
+        name = 'cim-android-sdk'
+        version = android.defaultConfig.versionName
+        description = 'cim sdk for android'
+        url = 'https://github.com/farsunset-com/cim.git'
+
+        // 开源协议配置，可根据需要修改
+        licenses {
+            license {
+                name = 'The Apache License, Version 2.0'
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            }
+        }
+
+        developers {
+            developer {
+                id = 'farsunset'
+                name = 'farsunset'
+                email = '3979434@qq.com'
+            }
+        }
+
+        scm {
+            connection = 'scm:git:github.com/farsunset-com/cim.git'
+            developerConnection = 'scm:git:ssh://github.com/farsunset-com/cim.git'
+            url = 'https://github.com/farsunset-com/cim.git'
+        }
+    }
+
+    publishToMavenCentral()
+    signAllPublications()
+}
+
+
+dependencies {
+    implementation 'com.google.protobuf:protobuf-javalite:4.33.1'
+}

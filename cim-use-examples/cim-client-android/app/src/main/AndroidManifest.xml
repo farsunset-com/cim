@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.farsunset.cim">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -34,14 +35,14 @@
 
         <!-- ****************************************CIM推送配置 begin*************************************** -->
         <service
-            android:name="com.farsunset.cim.sdk.android.CIMPushService"
+            android:name="com.farsunset.cim.CIMPushService"
             android:exported="false"
             android:foregroundServiceType="remoteMessaging"
             android:process=":cimpush"
             />
 
         <provider
-            android:name="com.farsunset.cim.sdk.android.CIMCacheProvider"
+            android:name="com.farsunset.cim.CIMCacheProvider"
             android:authorities="${applicationId}.cim.provider"
             android:exported="false" />
         <!-- ****************************************CIM推送配置 end*************************************** -->

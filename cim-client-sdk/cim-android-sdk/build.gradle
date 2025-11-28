@@ -1,0 +1,17 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+        maven{ url'https://maven.aliyun.com/repository/central' }
+        maven{ url'https://maven.aliyun.com/repository/google' }
+        maven{ url'https://maven.aliyun.com/repository/public' }
+        maven{ url'https://maven.aliyun.com/repository/gradle-plugin' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.1'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.35.0'
+
+    }
+}
+

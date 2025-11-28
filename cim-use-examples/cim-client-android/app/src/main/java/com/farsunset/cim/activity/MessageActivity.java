@@ -14,12 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.farsunset.cim.R;
 import com.farsunset.cim.adapter.MessageListAdapter;
 import com.farsunset.cim.dialog.SendMessageDialog;
-import com.farsunset.cim.sdk.android.CIMEventListener;
-import com.farsunset.cim.sdk.android.CIMListenerManager;
-import com.farsunset.cim.sdk.android.CIMPushManager;
-import com.farsunset.cim.sdk.android.model.Message;
-import com.farsunset.cim.sdk.android.model.ReplyBody;
-import com.farsunset.cim.sdk.android.model.SentBody;
+import com.farsunset.cim.CIMEventListener;
+import com.farsunset.cim.CIMListenerManager;
+import com.farsunset.cim.CIMPushManager;
+import com.farsunset.cim.model.Message;
+import com.farsunset.cim.model.ReplyBody;
+import com.farsunset.cim.model.SentBody;
 
 public class MessageActivity extends AppCompatActivity implements CIMEventListener {
 

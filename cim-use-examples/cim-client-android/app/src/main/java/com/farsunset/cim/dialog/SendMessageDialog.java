@@ -33,7 +33,7 @@ import androidx.appcompat.app.AppCompatDialog;
 
 import com.farsunset.cim.R;
 import com.farsunset.cim.http.SendMessageManager;
-import com.farsunset.cim.sdk.android.model.Message;
+import com.farsunset.cim.model.Message;
 
 
 public class SendMessageDialog extends AppCompatDialog implements View.OnClickListener, DialogInterface.OnShowListener {
