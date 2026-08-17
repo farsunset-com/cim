@@ -23,45 +23,35 @@ package com.farsunset.cim.mvc.controller.message;
 
 import com.farsunset.cim.component.push.DefaultMessagePusher;
 import com.farsunset.cim.model.Message;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 
 @RestController
 @RequestMapping("/api/message")
-@Api(produces = "application/json", tags = "消息相关接口" )
+@Tag(name = "消息相关接口")
 public class MessageController  {
 
 	@Resource
 	private DefaultMessagePusher defaultMessagePusher;
 
-	@ApiOperation(httpMethod = "POST", value = "发送消息")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "sender", value = "发送者UID", paramType = "query", dataTypeClass = String.class, required = true, example = ""),
-			@ApiImplicitParam(name = "receiver", value = "接收者UID", paramType = "query", dataTypeClass = String.class, required = true, example = ""),
-			@ApiImplicitParam(name = "action", value = "消息动作", paramType = "query", dataTypeClass = String.class, required = true, example = ""),
-			@ApiImplicitParam(name = "title", value = "消息标题", paramType = "query", dataTypeClass = String.class, example = ""),
-			@ApiImplicitParam(name = "content", value = "消息内容", paramType = "query", dataTypeClass = String.class,  example = ""),
-			@ApiImplicitParam(name = "format", value = "消息格式", paramType = "query", dataTypeClass = String.class,  example = ""),
-			@ApiImplicitParam(name = "extra", value = "扩展字段", paramType = "query", dataTypeClass = String.class, example = ""),
-	})
+	@Operation(summary = "发送消息")
 	@PostMapping(value = "/send")
-	public ResponseEntity<Long> send(@RequestParam String sender ,
-									 @RequestParam String receiver ,
-									 @RequestParam String action ,
-									 @RequestParam(required = false) String title ,
-									 @RequestParam(required = false) String content ,
-									 @RequestParam(required = false) String format ,
-									 @RequestParam(required = false) String extra)  {
+	public ResponseEntity<Long> send(@Parameter(description = "发送者UID") @RequestParam String sender ,
+									 @Parameter(description = "接收者UID") @RequestParam String receiver ,
+									 @Parameter(description = "消息动作") @RequestParam String action ,
+									 @Parameter(description = "消息标题") @RequestParam(required = false) String title ,
+									 @Parameter(description = "消息内容") @RequestParam(required = false) String content ,
+									 @Parameter(description = "消息格式") @RequestParam(required = false) String format ,
+									 @Parameter(description = "扩展字段") @RequestParam(required = false) String extra)  {
 
 		Message message = new Message();
 		message.setSender(sender);

@@ -31,7 +31,7 @@ import com.farsunset.cim.model.SentBody;
 import com.farsunset.cim.service.SessionService;
 import io.netty.channel.Channel;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Objects;
 
 /**

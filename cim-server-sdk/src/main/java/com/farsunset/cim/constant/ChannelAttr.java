@@ -22,13 +22,15 @@
 package com.farsunset.cim.constant;
 
 import io.netty.util.AttributeKey;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 public interface ChannelAttr {
 
     /**
      * 心跳请求次数
      */
-    AttributeKey<Integer> PING_COUNT = AttributeKey.valueOf("ping_count");
+    AttributeKey<LongAdder> PING_COUNT = AttributeKey.valueOf("ping_count");
 
     /**
      * UID标识

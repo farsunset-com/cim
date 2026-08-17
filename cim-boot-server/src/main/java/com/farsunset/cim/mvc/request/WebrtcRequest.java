@@ -22,22 +22,21 @@
 package com.farsunset.cim.mvc.request;
 
 import com.farsunset.cim.annotation.CreateAction;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
-@ApiModel("单人通话ice、offer、answer同步请求体")
+@Schema(description = "单人通话ice、offer、answer同步请求体")
 public class WebrtcRequest implements Serializable {
 
 	@NotNull(message = "UID不能为空",groups = CreateAction.class)
-	@ApiModelProperty("对方UID")
+	@Schema(description = "对方UID")
 	private String uid;
 
 	@NotEmpty(message = "content不能超过2000个字符",groups = CreateAction.class)
-	@ApiModelProperty("ice信息json、offer或者answer的sdp")
+	@Schema(description = "ice信息json、offer或者answer的sdp")
 	private String content;
 
 	public String getUid() {

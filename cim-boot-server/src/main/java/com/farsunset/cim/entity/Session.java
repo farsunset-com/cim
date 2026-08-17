@@ -22,7 +22,7 @@
 package com.farsunset.cim.entity;
 
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "t_cim_session")

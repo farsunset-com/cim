@@ -64,8 +64,10 @@ public class AppSocketAcceptor extends NioSocketAcceptor {
 		bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
 			@Override
 			public void initChannel(SocketChannel ch){
-                ch.pipeline().addLast(new HAProxyMessageDecoder());
-                ch.pipeline().addLast(new ProxyMessageHandler());
+				if (socketConfig.isHaProxyEnable()) {
+					ch.pipeline().addLast(new HAProxyMessageDecoder());
+					ch.pipeline().addLast(new ProxyMessageHandler());
+				}
                 ch.pipeline().addLast(blacklistHandler);
 				ch.pipeline().addLast(new AppMessageDecoder());
 				ch.pipeline().addLast(new AppMessageEncoder());

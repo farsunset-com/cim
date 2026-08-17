@@ -36,7 +36,7 @@ import com.farsunset.cim.service.SessionService;
 import io.netty.channel.Channel;
 import org.springframework.http.HttpStatus;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * 客户端长连接通道发消息

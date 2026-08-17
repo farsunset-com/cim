@@ -22,32 +22,26 @@
 package com.farsunset.cim.mvc.controller.message;
 
 import com.farsunset.cim.service.SessionService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping("/apns")
-@Api(produces = "application/json", tags = "APNs推送相关")
+@Tag(name = "APNs推送相关")
 public class APNsController {
 
-	@ApiOperation(httpMethod = "POST", value = "开启apns")
-
-
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "deviceToken", value = "APNs的deviceToken", paramType = "query", dataTypeClass = String.class, required = true, example = ""),
-			@ApiImplicitParam(name = "uid", value = "用户ID", paramType = "query", dataTypeClass = String.class,example = "0")
-	})
+	@Operation(summary = "开启apns")
 	@PostMapping(value = "/open")
-	public ResponseEntity<Void> open(@RequestParam String uid , @RequestParam String deviceToken) {
+	public ResponseEntity<Void> open(@Parameter(description = "用户ID", example = "0") @RequestParam String uid,
+								 @Parameter(description = "APNs的deviceToken") @RequestParam String deviceToken) {
 
 		sessionService.openApns(uid,deviceToken);
 
@@ -57,10 +51,9 @@ public class APNsController {
 	@Resource
 	private SessionService sessionService;
 
-	@ApiOperation(httpMethod = "POST", value = "关闭apns")
-	@ApiImplicitParam(name = "uid", value = "用户ID", paramType = "query", dataTypeClass = String.class,example = "0")
+	@Operation(summary = "关闭apns")
 	@PostMapping(value = "/close")
-	public ResponseEntity<Void> close(@RequestParam String uid) {
+	public ResponseEntity<Void> close(@Parameter(description = "用户ID", example = "0") @RequestParam String uid) {
 
 		sessionService.closeApns(uid);
 

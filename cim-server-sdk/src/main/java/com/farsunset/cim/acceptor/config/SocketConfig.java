@@ -36,7 +36,7 @@ public class SocketConfig {
     private static final int DEFAULT_PORT = 23456;
 
     /**
-    TVL协议socket端口
+    TLV协议socket端口
      */
     private Integer port;
 
@@ -44,6 +44,7 @@ public class SocketConfig {
     是否启用TVL协议socket
      */
     private boolean enable;
+
 
     /**
      长链接写空闲时间触发时间(s)
@@ -62,6 +63,12 @@ public class SocketConfig {
      达到该次数则 服务端断开链接
      */
     private int maxPongTimeout = 1;
+
+    /**
+     * 是否支持proxy protocol
+     * 如网关nginx开启之后可配置为true
+     */
+    private boolean haProxyEnable = false;
 
     /**
      * socket消息处理器
@@ -87,13 +94,20 @@ public class SocketConfig {
         this.port = port;
     }
 
-
     public boolean isEnable() {
         return enable;
     }
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public boolean isHaProxyEnable() {
+        return haProxyEnable;
+    }
+
+    public void setHaProxyEnable(boolean haProxyEnable) {
+        this.haProxyEnable = haProxyEnable;
     }
 
     public Duration getWriteIdle() {

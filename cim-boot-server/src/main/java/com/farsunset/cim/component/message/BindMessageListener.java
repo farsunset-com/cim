@@ -35,7 +35,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;

@@ -27,26 +27,24 @@ import com.farsunset.cim.constants.MessageAction;
 import com.farsunset.cim.model.Message;
 import com.farsunset.cim.mvc.request.WebrtcRequest;
 import com.farsunset.cim.mvc.response.ResponseEntity;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping("/webrtc")
-@Api(produces = "application/json", tags = "单人通话信令推送接口" )
+@Tag(name = "单人通话信令推送接口")
 public class WebrtcController {
 
 	@Resource
 	private DefaultMessagePusher defaultMessagePusher;
 
-	@ApiOperation(httpMethod = "POST", value = "发起单人语音通话")
-	@ApiImplicitParam(name = "targetId", value = "对方用户ID", paramType = "query",  dataTypeClass = Long.class)
+	@Operation(summary = "发起单人语音通话")
 	@PostMapping(value = {"/voice"})
-	public ResponseEntity<Void> voice(@ApiParam(hidden = true) @UID String uid,@RequestParam String targetId) {
+	public ResponseEntity<Void> voice(@Parameter(hidden = true) @UID String uid,@Parameter(description = "对方用户ID") @RequestParam String targetId) {
  
 
 		Message message = new Message();
@@ -59,10 +57,9 @@ public class WebrtcController {
 	}
 
 
-	@ApiOperation(httpMethod = "POST", value = "发起单人视频通话")
-	@ApiImplicitParam(name = "targetId", value = "对方用户ID", paramType = "query",  dataTypeClass = Long.class)
+	@Operation(summary = "发起单人视频通话")
 	@PostMapping(value =  {"/video"})
-	public ResponseEntity<Void> video(@ApiParam(hidden = true) @UID String uid,@RequestParam String targetId) {
+	public ResponseEntity<Void> video(@Parameter(hidden = true) @UID String uid,@Parameter(description = "对方用户ID") @RequestParam String targetId) {
 
 		Message message = new Message();
 		message.setAction(MessageAction.ACTION_901);
@@ -73,10 +70,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "接受通话")
-	@ApiImplicitParam(name = "targetId", value = "对方用户ID", paramType = "query",  dataTypeClass = Long.class)
+	@Operation(summary = "接受通话")
 	@PostMapping(value =  {"/accept"})
-	public ResponseEntity<Void> accept(@ApiParam(hidden = true) @UID String uid,@RequestParam String targetId) {
+	public ResponseEntity<Void> accept(@Parameter(hidden = true) @UID String uid,@Parameter(description = "对方用户ID") @RequestParam String targetId) {
 		Message message = new Message();
 		message.setAction(MessageAction.ACTION_902);
 		message.setSender(uid);
@@ -86,10 +82,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "拒绝通话")
-	@ApiImplicitParam(name = "targetId", value = "对方用户ID", paramType = "query",  dataTypeClass = Long.class)
+	@Operation(summary = "拒绝通话")
 	@PostMapping(value =  {"/reject"})
-	public ResponseEntity<Void> reject(@ApiParam(hidden = true) @UID String uid,@RequestParam String targetId) {
+	public ResponseEntity<Void> reject(@Parameter(hidden = true) @UID String uid,@Parameter(description = "对方用户ID") @RequestParam String targetId) {
 
 		Message message = new Message();
 		message.setAction(MessageAction.ACTION_903);
@@ -100,10 +95,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "反馈正忙")
-	@ApiImplicitParam(name = "targetId", value = "对方用户ID", paramType = "query",  dataTypeClass = Long.class)
+	@Operation(summary = "反馈正忙")
 	@PostMapping(value =  {"/busy"})
-	public ResponseEntity<Void> busy(@ApiParam(hidden = true) @UID String uid, @RequestParam String targetId) {
+	public ResponseEntity<Void> busy(@Parameter(hidden = true) @UID String uid, @Parameter(description = "对方用户ID") @RequestParam String targetId) {
 
 		Message message = new Message();
 		message.setAction(MessageAction.ACTION_904);
@@ -114,10 +108,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "挂断通话")
-	@ApiImplicitParam(name = "targetId", value = "对方用户ID", paramType = "query",  dataTypeClass = Long.class)
+	@Operation(summary = "挂断通话")
 	@PostMapping(value =  {"/hangup"})
-	public ResponseEntity<Void> hangup(@ApiParam(hidden = true) @UID String uid,@RequestParam String targetId) {
+	public ResponseEntity<Void> hangup(@Parameter(hidden = true) @UID String uid,@Parameter(description = "对方用户ID") @RequestParam String targetId) {
 
 		Message message = new Message();
 		message.setAction(MessageAction.ACTION_905);
@@ -128,10 +121,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "取消呼叫")
-	@ApiImplicitParam(name = "targetId", value = "对方用户ID", paramType = "query",  dataTypeClass = Long.class)
+	@Operation(summary = "取消呼叫")
 	@PostMapping(value =  {"/cancel"})
-	public ResponseEntity<Void> cancel(@ApiParam(hidden = true) @UID String uid, @RequestParam String targetId) {
+	public ResponseEntity<Void> cancel(@Parameter(hidden = true) @UID String uid, @Parameter(description = "对方用户ID") @RequestParam String targetId) {
 
 		Message message = new Message();
 		message.setAction(MessageAction.ACTION_906);
@@ -142,9 +134,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "同步IceCandidate")
+	@Operation(summary = "同步IceCandidate")
 	@PostMapping(value = {"/transmit/ice"})
-	public ResponseEntity<Void> ice(@ApiParam(hidden = true) @UID String uid,
+	public ResponseEntity<Void> ice(@Parameter(hidden = true) @UID String uid,
 									@RequestBody WebrtcRequest request
 	) {
 
@@ -157,9 +149,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "同步offer")
+	@Operation(summary = "同步offer")
 	@PostMapping(value =  {"/transmit/offer"})
-	public ResponseEntity<Void> offer(@ApiParam(hidden = true) @UID String uid,
+	public ResponseEntity<Void> offer(@Parameter(hidden = true) @UID String uid,
 									  @RequestBody WebrtcRequest request
 	) {
 
@@ -172,9 +164,9 @@ public class WebrtcController {
 		return ResponseEntity.make();
 	}
 
-	@ApiOperation(httpMethod = "POST", value = "同步answer")
+	@Operation(summary = "同步answer")
 	@PostMapping(value =  {"/transmit/answer"})
-	public ResponseEntity<Void> answer(@ApiParam(hidden = true) @UID String uid,
+	public ResponseEntity<Void> answer(@Parameter(hidden = true) @UID String uid,
 									   @RequestBody WebrtcRequest request
 	) {
 

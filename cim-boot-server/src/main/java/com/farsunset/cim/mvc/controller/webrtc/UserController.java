@@ -25,30 +25,28 @@ package com.farsunset.cim.mvc.controller.webrtc;
 import com.farsunset.cim.annotation.AccessToken;
 import com.farsunset.cim.mvc.response.ResponseEntity;
 import com.farsunset.cim.service.AccessTokenService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
-@Api(produces = "application/json", tags = "用户登录接口" )
+@Tag(name = "用户登录接口")
 @Validated
 public class UserController {
 
 	@Resource
 	private AccessTokenService accessTokenService;
 
-	@ApiOperation(httpMethod = "POST", value = "模拟登录")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "telephone", value = "手机号码", paramType = "query", dataTypeClass = String.class),
-			@ApiImplicitParam(name = "password", value = "密码", paramType = "query", dataTypeClass = String.class),
-	})
+	@Operation(summary = "模拟登录")
 	@PostMapping(value = "/login")
-	public ResponseEntity<?> login(@RequestParam String telephone) {
+	public ResponseEntity<?> login(@Parameter(description = "手机号码") @RequestParam String telephone) {
 
 
 		Map<String,Object> body = new HashMap<>();
@@ -65,10 +63,9 @@ public class UserController {
 		return result;
 	}
 
-
-	@ApiOperation(httpMethod = "GET", value = "退出登录")
+	@Operation(summary = "退出登录")
 	@GetMapping(value = "/logout")
-	public ResponseEntity<Void> logout(@ApiParam(hidden = true) @AccessToken String token) {
+	public ResponseEntity<Void> logout(@Parameter(hidden = true) @AccessToken String token) {
 		accessTokenService.delete(token);
 		return ResponseEntity.make();
 	}

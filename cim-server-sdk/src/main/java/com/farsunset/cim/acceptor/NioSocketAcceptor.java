@@ -31,12 +31,18 @@ import com.farsunset.cim.model.Ping;
 import com.farsunset.cim.model.SentBody;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,25 +67,12 @@ abstract class NioSocketAcceptor extends SimpleChannelInboundHandler<SentBody>{
 
 		this.blacklistHandler = new BlacklistHandler(socketConfig.getBlacklistPredicate());
 
-		ThreadFactory bossThreadFactory = r -> {
-			Thread thread = new Thread(r);
-			thread.setName("nio-boss-" + thread.getId());
-			return thread;
-		};
+		ThreadFactory bossThreadFactory = new DefaultThreadFactory("nio-boss-");
 
-		ThreadFactory workerThreadFactory = r -> {
-			Thread thread = new Thread(r);
-			thread.setName("nio-worker-" + thread.getId());
-			return thread;
-		};
+		ThreadFactory workerThreadFactory = new DefaultThreadFactory("nio-worker-");
 
-		if (isLinuxSystem()){
-			bossGroup = new EpollEventLoopGroup(bossThreadFactory);
-			workerGroup = new EpollEventLoopGroup(workerThreadFactory);
-		}else {
-			bossGroup = new NioEventLoopGroup(bossThreadFactory);
-			workerGroup = new NioEventLoopGroup(workerThreadFactory);
-		}
+		bossGroup = new MultiThreadIoEventLoopGroup(bossThreadFactory, Epoll.isAvailable() ? EpollIoHandler.newFactory() : NioIoHandler.newFactory());
+		workerGroup = new MultiThreadIoEventLoopGroup(workerThreadFactory,Epoll.isAvailable() ? EpollIoHandler.newFactory(): NioIoHandler.newFactory());
 
 	}
 
@@ -93,11 +86,11 @@ abstract class NioSocketAcceptor extends SimpleChannelInboundHandler<SentBody>{
 	 * 执行注销SOCKET服务
 	 */
 	public void destroy() {
-		if(bossGroup != null && !bossGroup.isShuttingDown() && !bossGroup.isShutdown() ) {
+		if(bossGroup != null) {
 			try {bossGroup.shutdownGracefully();}catch(Exception ignore) {}
 		}
 
-		if(workerGroup != null && !workerGroup.isShuttingDown() && !workerGroup.isShutdown() ) {
+		if(workerGroup != null) {
 			try {workerGroup.shutdownGracefully();}catch(Exception ignore) {}
 		}
 	}
@@ -107,7 +100,7 @@ abstract class NioSocketAcceptor extends SimpleChannelInboundHandler<SentBody>{
 		bootstrap.group(bossGroup, workerGroup);
 		bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
 		bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-		bootstrap.channel(isLinuxSystem() ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
+		bootstrap.channel(Epoll.isAvailable() ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
 		return bootstrap;
 	}
 
@@ -166,8 +159,9 @@ abstract class NioSocketAcceptor extends SimpleChannelInboundHandler<SentBody>{
 		 */
 		if (idleEvent.state() == IdleState.WRITER_IDLE && uid != null) {
 
-			Integer pingCount = ctx.channel().attr(ChannelAttr.PING_COUNT).get();
-			ctx.channel().attr(ChannelAttr.PING_COUNT).set(pingCount == null ? 1 : pingCount + 1);
+			LongAdder pingCount = getPingCount(ctx.channel());
+			pingCount.increment();
+			ctx.channel().attr(ChannelAttr.PING_COUNT).set(pingCount);
 
 			ctx.channel().writeAndFlush(Ping.getInstance());
 
@@ -177,16 +171,23 @@ abstract class NioSocketAcceptor extends SimpleChannelInboundHandler<SentBody>{
 		/*
 		 * 如果心跳请求发出（readIdle-writeIdle）秒内没收到响应，则关闭连接
 		 */
-		Integer pingCount = ctx.channel().attr(ChannelAttr.PING_COUNT).get();
-		if (idleEvent.state() == IdleState.READER_IDLE && pingCount != null && pingCount >= socketConfig.getMaxPongTimeout()) {
+		long pingCount = getPingCount(ctx.channel()).longValue();
+		if (idleEvent.state() == IdleState.READER_IDLE && pingCount >= socketConfig.getMaxPongTimeout()) {
 			ctx.close();
 			logger.info("{} pong timeout.",ctx.channel());
 		}
 	}
 
-	private boolean isLinuxSystem(){
-		String osName = System.getProperty("os.name").toLowerCase();
-		return osName.contains("linux");
+	private LongAdder getPingCount(Channel channel){
+		LongAdder pingCount = channel.attr(ChannelAttr.PING_COUNT).get();
+		if (pingCount != null) {
+			return pingCount;
+		}
+
+		LongAdder newPingCount = new LongAdder();
+		channel.attr(ChannelAttr.PING_COUNT).set(newPingCount);
+
+		return newPingCount;
 	}
 
 }

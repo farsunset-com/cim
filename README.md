@@ -57,7 +57,7 @@ CIM采用业内主流开源技术构建，易于扩展和使用，并完美支�
 <dependency>
    <groupId>com.farsunset</groupId>
    <artifactId>cim-server-sdk-netty</artifactId>
-   <version>4.3.1</version>
+   <version>4.3.2</version>
 </dependency>
 
 ```
@@ -65,5 +65,5 @@ CIM采用业内主流开源技术构建，易于扩展和使用，并完美支�
 android端sdk引用
 
 ```
-implementation "com.farsunset:cim-android-sdk:4.3.1"
+implementation "com.farsunset:cim-android-sdk:4.3.3"
 ```

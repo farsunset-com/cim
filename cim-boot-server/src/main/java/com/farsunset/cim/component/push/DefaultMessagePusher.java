@@ -27,7 +27,7 @@ import com.farsunset.cim.model.Message;
 import com.farsunset.cim.service.APNsService;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /*
  * 消息发送实现类

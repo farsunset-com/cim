@@ -239,7 +239,7 @@ public class CIMPushManager {
         CIMCacheManager.putBoolean(context, CIMCacheManager.KEY_MANUAL_STOP, true);
 
         Intent serviceIntent = new Intent(context, CIMPushService.class);
-        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
+        serviceIntent.setAction(ServiceAction.ACTION_CLOSE_CONNECTION);
         startService(context, serviceIntent);
 
     }
@@ -253,7 +253,7 @@ public class CIMPushManager {
         CIMCacheManager.remove(context, CIMCacheManager.KEY_UID);
 
         Intent serviceIntent = new Intent(context, CIMPushService.class);
-        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
+        serviceIntent.setAction(ServiceAction.ACTION_DESTROY_SERVICE);
         startService(context, serviceIntent);
 
     }

@@ -23,6 +23,7 @@ public class BlacklistHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        // 没有校验 或者 校验通过
         if (predicate == null || predicate.test(getClientIp(ctx))) {
             super.channelRegistered(ctx);
             return;

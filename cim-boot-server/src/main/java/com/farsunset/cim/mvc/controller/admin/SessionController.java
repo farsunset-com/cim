@@ -22,16 +22,16 @@
 package com.farsunset.cim.mvc.controller.admin;
 
 import com.farsunset.cim.service.SessionService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Controller
-@Api(produces = "application/json", tags = "在线用户页面",hidden = true)
+@Hidden
 @RequestMapping("/console/session")
 public class SessionController {
 

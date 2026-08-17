@@ -21,13 +21,13 @@
  */
 package com.farsunset.cim.mvc.controller.admin;
 
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@Api(produces = "application/json", tags = "页面导航",hidden = true)
+@Hidden
 public class NavigationController {
 
 	@GetMapping(value = "/")

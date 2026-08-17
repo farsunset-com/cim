@@ -71,9 +71,14 @@ public class CIMPushService extends Service {
 
         this.registerReceiver(keepAliveReceiver, keepAliveReceiver.getIntentFilter());
 
-        connectivityManager = getSystemService(ConnectivityManager.class);
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        connectivityManager.registerDefaultNetworkCallback(networkCallback);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            connectivityManager.registerDefaultNetworkCallback(networkCallback);
+        } else {
+            IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+            registerReceiver(networkChangeReceiver, filter);
+        }
 
     }
 
@@ -87,6 +92,17 @@ public class CIMPushService extends Service {
         @Override
         public void onLost(Network network) {
             sendBroadcast(new Intent(IntentAction.ACTION_NETWORK_CHANGED).setPackage(getPackageName()));
+        }
+    };
+
+    private final BroadcastReceiver networkChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected()) {
+                sendBroadcast(new Intent(IntentAction.ACTION_NETWORK_CHANGED).setPackage(getPackageName()));
+                handleKeepAlive();
+            }
         }
     };
 
@@ -237,36 +253,45 @@ public class CIMPushService extends Service {
 
         unregisterReceiver(keepAliveReceiver);
 
-        connectivityManager.unregisterNetworkCallback(networkCallback);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        } else {
+            unregisterReceiver(networkChangeReceiver);
+        }
     }
 
     private void createTransientNotification() {
 
-        if (notificationManager.getNotificationChannel(PERSIST_NTC_CHANNEL_ID) != null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            int icon = CIMCacheManager.getInt(this, CIMCacheManager.KEY_NTC_CHANNEL_ICON);
-            String title = CIMCacheManager.getString(this, CIMCacheManager.KEY_NTC_CHANNEL_NAME);
-            String message = CIMCacheManager.getString(this, CIMCacheManager.KEY_NTC_CHANNEL_MESSAGE);
+            if (notificationManager.getNotificationChannel(PERSIST_NTC_CHANNEL_ID) != null) {
 
-            Notification notification = makeNotification(PERSIST_NTC_CHANNEL_ID,icon,title,message);
+                int icon = CIMCacheManager.getInt(this, CIMCacheManager.KEY_NTC_CHANNEL_ICON);
+                String title = CIMCacheManager.getString(this, CIMCacheManager.KEY_NTC_CHANNEL_NAME);
+                String message = CIMCacheManager.getString(this, CIMCacheManager.KEY_NTC_CHANNEL_MESSAGE);
 
-            startForegroundNotification(NOTIFICATION_ID,  notification);
-            return;
+                Notification notification = makeNotification(PERSIST_NTC_CHANNEL_ID, icon, title, message);
+
+                startForegroundNotification(NOTIFICATION_ID, notification);
+                return;
+            }
+
+            if (notificationManager.getNotificationChannel(TRANSIENT_NTC_CHANNEL_ID) == null) {
+                NotificationChannel channel = new NotificationChannel(TRANSIENT_NTC_CHANNEL_ID, getClass().getSimpleName(), NotificationManager.IMPORTANCE_LOW);
+                channel.enableLights(false);
+                channel.enableVibration(false);
+                channel.setSound(null, null);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            Notification notification = makeNotification(TRANSIENT_NTC_CHANNEL_ID, 0, CIMPushService.class.getSimpleName(), null);
+
+            startForegroundNotification(NOTIFICATION_ID, notification);
+
+        } else {
+            Notification notification = makeNotification(null, 0, CIMPushService.class.getSimpleName(), null);
+            startForegroundNotification(NOTIFICATION_ID, notification);
         }
-
-
-        if (notificationManager.getNotificationChannel(TRANSIENT_NTC_CHANNEL_ID) == null) {
-            NotificationChannel channel = new NotificationChannel(TRANSIENT_NTC_CHANNEL_ID, getClass().getSimpleName(), NotificationManager.IMPORTANCE_LOW);
-            channel.enableLights(false);
-            channel.enableVibration(false);
-            channel.setSound(null, null);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        Notification notification = makeNotification(TRANSIENT_NTC_CHANNEL_ID,0, CIMPushService.class.getSimpleName(),null);
-
-        startForegroundNotification(NOTIFICATION_ID,  notification);
-
     }
 
 
@@ -277,25 +302,31 @@ public class CIMPushService extends Service {
         CIMCacheManager.putInt(this, CIMCacheManager.KEY_NTC_CHANNEL_ICON,icon);
         CIMCacheManager.putBoolean(this, CIMCacheManager.KEY_NTC_SWITCH,true);
 
-        if (notificationManager.getNotificationChannel(PERSIST_NTC_CHANNEL_ID) == null) {
-            NotificationChannel channel = new NotificationChannel(PERSIST_NTC_CHANNEL_ID,channelName, NotificationManager.IMPORTANCE_DEFAULT);
-            channel.enableLights(false);
-            channel.setShowBadge(false);
-            channel.enableVibration(false);
-            channel.setSound(null, null);
-            notificationManager.createNotificationChannel(channel);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (notificationManager.getNotificationChannel(PERSIST_NTC_CHANNEL_ID) == null) {
+                NotificationChannel channel = new NotificationChannel(PERSIST_NTC_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
+                channel.enableLights(false);
+                channel.setShowBadge(false);
+                channel.enableVibration(false);
+                channel.setSound(null, null);
+                notificationManager.createNotificationChannel(channel);
+            }
         }
 
-        Notification notification = makeNotification(PERSIST_NTC_CHANNEL_ID,icon,channelName,message);
+        Notification notification = makeNotification(PERSIST_NTC_CHANNEL_ID, icon, channelName, message);
 
-        startForegroundNotification(NOTIFICATION_ID,notification);
+        startForegroundNotification(NOTIFICATION_ID, notification);
     }
 
 
     private Notification makeNotification(String channel,int icon,String title,String message){
 
         Notification.Builder builder;
-        builder = new Notification.Builder(this, channel);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new Notification.Builder(this, channel);
+        } else {
+            builder = new Notification.Builder(this);
+        }
 
         builder.setAutoCancel(false)
                .setOngoing(false)
@@ -315,7 +346,11 @@ public class CIMPushService extends Service {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         intent.setPackage(getPackageName());
-        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        return PendingIntent.getActivity(this, 0, intent, flags);
     }
 
     private class KeepAliveBroadcastReceiver extends BroadcastReceiver {

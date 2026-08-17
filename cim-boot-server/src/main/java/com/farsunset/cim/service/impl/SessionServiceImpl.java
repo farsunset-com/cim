@@ -27,7 +27,7 @@ import com.farsunset.cim.repository.SessionRepository;
 import com.farsunset.cim.service.SessionService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
