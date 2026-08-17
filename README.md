@@ -5,10 +5,10 @@
 
 
 <div align="center">
-   <img src="http://staticres.oss-cn-hangzhou.aliyuncs.com/hoxin/group_video_calling.jpg" width="24%"  />
-   <img src="http://staticres.oss-cn-hangzhou.aliyuncs.com/hoxin/single_chatting_light.jpg" width="24%"  />
-   <img src="http://staticres.oss-cn-hangzhou.aliyuncs.com/hoxin/single_chatting_dark.jpg" width="24%"  />
-   <img src="http://staticres.oss-cn-hangzhou.aliyuncs.com/hoxin/moment_timeline_light.jpg" width="24%"  />
+   <img src="images/group_video_calling.jpg" width="24%"  />
+   <img src="images/single_chatting_light.jpg" width="24%"  />
+   <img src="images/single_chatting_dark.jpg" width="24%"  />
+   <img src="images/moment_timeline_light.jpg" width="24%"  />
 </div>
 
 
