@@ -24,6 +24,7 @@ package com.farsunset.cim;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 import com.farsunset.cim.coder.ClientMessageDecoder;
 import com.farsunset.cim.coder.ClientMessageEncoder;
 import com.farsunset.cim.constant.BundleKey;
@@ -42,7 +43,6 @@ import java.nio.channels.SocketChannel;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
  * 连接服务端管理，cim核心处理类，管理连接，以及消息处理
@@ -66,8 +66,6 @@ class CIMConnectManager {
 
     private final Context context;
 
-    private final ByteBuffer headerBuffer = ByteBuffer.allocate(CIMConstant.DATA_HEADER_LENGTH);
-
     private final ExecutorService workerExecutor = Executors.newFixedThreadPool(1, r -> new Thread(r, "worker-"));
 
     private final ExecutorService bossExecutor = Executors.newFixedThreadPool(1, r -> new Thread(r, "boss-"));
@@ -77,13 +75,18 @@ class CIMConnectManager {
 
     private final Random random = new Random();
 
-    private final AtomicBoolean connecting = new AtomicBoolean(false);
+    private boolean destroyed;
 
     public CIMConnectManager(Context context) {
         this.context = context;
     }
 
-    public void connect(final String host, final int port) {
+    public synchronized void connect(final String host, final int port) {
+
+        if (destroyed || socketChannel != null
+                || CIMPushManager.isDestroyed(context) || CIMPushManager.isStopped(context)) {
+            return;
+        }
 
         if (!CIMPushManager.isNetworkConnected(context)) {
 
@@ -95,111 +98,136 @@ class CIMConnectManager {
             return;
         }
 
-        if (isConnected() || connecting.get()) {
+        final SocketChannel channel;
+        try {
+            channel = SocketChannel.open();
+        } catch (IOException exception) {
+            handleConnectFailedEvent(exception);
             return;
         }
+        socketChannel = channel;
 
         bossExecutor.execute(() -> {
 
-            if (isConnected()) {
-                return;
-            }
-
-            LOGGER.startConnect(host, port);
-
-            CIMCacheManager.putBoolean(context, CIMCacheManager.KEY_CIM_CONNECTION_STATE, false);
-
             try {
 
-                connecting.set(true);
+                synchronized (this) {
+                    if (destroyed || socketChannel != channel) {
+                        return;
+                    }
+                    LOGGER.startConnect(host, port);
+                    CIMCacheManager.putBoolean(context, CIMCacheManager.KEY_CIM_CONNECTION_STATE, false);
+                }
 
-                socketChannel = SocketChannel.open();
-                socketChannel.configureBlocking(true);
-                socketChannel.socket().setTcpNoDelay(true);
-                socketChannel.socket().setKeepAlive(true);
-                socketChannel.socket().setReceiveBufferSize(READ_BUFFER_SIZE);
-                socketChannel.socket().setSendBufferSize(WRITE_BUFFER_SIZE);
+                channel.configureBlocking(true);
+                channel.socket().setTcpNoDelay(true);
+                channel.socket().setKeepAlive(true);
+                channel.socket().setReceiveBufferSize(READ_BUFFER_SIZE);
+                channel.socket().setSendBufferSize(WRITE_BUFFER_SIZE);
 
-                socketChannel.socket().connect(new InetSocketAddress(host, port), CONNECT_TIME_OUT);
+                channel.socket().connect(new InetSocketAddress(host, port), CONNECT_TIME_OUT);
 
-                handleConnectedEvent();
-
-                connecting.set(false);
+                synchronized (this) {
+                    if (destroyed || socketChannel != channel
+                            || CIMPushManager.isDestroyed(context) || CIMPushManager.isStopped(context)) {
+                        return;
+                    }
+                    handleConnectedEvent();
+                }
 
                 /*
                  *开始读取来自服务端的消息，先读取3个字节的消息头
                  */
-                while (socketChannel.read(headerBuffer) > 0) {
-                    handleSocketReadEvent();
+                ByteBuffer headerBuffer = ByteBuffer.allocate(CIMConstant.DATA_HEADER_LENGTH);
+                while (channel.read(headerBuffer) >= 0) {
+                    if (!headerBuffer.hasRemaining()) {
+                        handleSocketReadEvent(headerBuffer, channel);
+                    }
                 }
 
-                /*
-                 *read 返回 <= 0的情况，发生了意外需要断开重链
-                 */
-                close();
+                close(channel, true);
 
             } catch (ConnectException | SocketTimeoutException | UnknownHostException exception) {
-                handleConnectFailedEvent(exception);
+                synchronized (this) {
+                    if (!destroyed && socketChannel == channel) {
+                        close(channel, false);
+                        handleConnectFailedEvent(exception);
+                    }
+                }
             } catch (IOException exception) {
-                handleDisconnectedEvent();
+                close(channel, true);
             }finally {
-                connecting.set(false);
+                close(channel, false);
             }
         });
     }
 
-    public void close() {
-
-        if (!isConnected()) {
-            return;
-        }
-
-        this.closeForce();
+    public synchronized void close() {
+        close(socketChannel, true);
     }
 
-    public boolean isConnected() {
-        return socketChannel != null && socketChannel.isConnected();
+    public synchronized void destroy() {
+        destroyed = true;
+        close(socketChannel, false);
+        idleHandler.removeMessages(0);
+        workerExecutor.shutdownNow();
+        bossExecutor.shutdownNow();
+    }
+
+    public synchronized boolean isConnected() {
+        return socketChannel != null && socketChannel.isOpen() && socketChannel.isConnected();
     }
 
     public void pong() {
         send(Pong.getInstance());
     }
 
-    public void send(final BinaryBody body) {
+    public synchronized void send(final BinaryBody body) {
 
-        if (!isConnected()) {
+        if (destroyed || !isConnected()) {
             return;
         }
 
+        final SocketChannel channel = socketChannel;
         workerExecutor.execute(() -> {
-            int result = 0;
+            ByteBuffer buffer;
             try {
+                buffer = messageEncoder.encode(body);
+            } catch (RuntimeException exception) {
+                Log.e("CIM", "Failed to encode outgoing message", exception);
+                return;
+            }
 
-                ByteBuffer buffer = messageEncoder.encode(body);
+            try {
                 while (buffer.hasRemaining()) {
-                    result += socketChannel.write(buffer);
+                    channel.write(buffer);
                 }
-
-            } catch (Exception e) {
-                result = -1;
-            } finally {
-
-                if (result <= 0) {
-                    close();
-                } else {
-                    onMessageSent(body);
+                synchronized (this) {
+                    if (!destroyed && socketChannel == channel) {
+                        onMessageSent(body);
+                    }
                 }
+            } catch (IOException exception) {
+                Log.e("CIM", "Failed to send outgoing message", exception);
+                close(channel, true);
             }
         });
 
     }
 
-    private void closeForce(){
+    private synchronized void close(SocketChannel channel, boolean notify) {
+        if (channel == null || socketChannel != channel) {
+            return;
+        }
+        socketChannel = null;
+        idleHandler.removeMessages(0);
         try {
-            socketChannel.close();
+            channel.close();
         } catch (IOException ignore) {
-        } finally {
-            this.onSessionClosed();
+        }
+        CIMCacheManager.putBoolean(context, CIMCacheManager.KEY_CIM_CONNECTION_STATE, false);
+        if (notify && !destroyed) {
+            onSessionClosed(channel);
         }
     }
 
@@ -214,11 +242,11 @@ class CIMConnectManager {
 
     }
 
-    private void onSessionClosed() {
+    private void onSessionClosed(SocketChannel channel) {
 
         idleHandler.removeMessages(0);
 
-        LOGGER.sessionClosed(socketChannel);
+        LOGGER.sessionClosed(channel);
 
         Intent intent = new Intent();
         intent.setPackage(context.getPackageName());
@@ -227,11 +255,15 @@ class CIMConnectManager {
 
     }
 
-    private void onSessionIdle() {
+    private synchronized void onSessionIdle(SocketChannel channel) {
 
-        LOGGER.sessionIdle(socketChannel);
+        if (destroyed || channel == null || socketChannel != channel) {
+            return;
+        }
 
-        close();
+        LOGGER.sessionIdle(channel);
+
+        close(channel, true);
     }
 
 
@@ -273,13 +305,9 @@ class CIMConnectManager {
     private final Handler idleHandler = new Handler() {
         @Override
         public void handleMessage(android.os.Message m) {
-            workerExecutor.execute(CIMConnectManager.this::onSessionIdle);
+            onSessionIdle((SocketChannel) m.obj);
         }
     };
-
-    private void handleDisconnectedEvent() {
-        closeForce();
-    }
 
     private void handleConnectFailedEvent(Exception exception) {
 
@@ -315,21 +343,30 @@ class CIMConnectManager {
 
     }
 
-    private void handleSocketReadEvent() throws IOException {
+    private void handleSocketReadEvent(ByteBuffer headerBuffer, SocketChannel channel) throws IOException {
 
-        closeCountDown();
-
-        Object message = messageDecoder.doDecode(headerBuffer,socketChannel);
-
-        LOGGER.messageReceived(socketChannel, message);
-
-        if (message instanceof Ping) {
-            send(Pong.getInstance());
-            return;
+        synchronized (this) {
+            if (destroyed || socketChannel != channel) {
+                return;
+            }
+            closeCountDown();
         }
 
-        this.onMessageReceived(message);
+        Object message = messageDecoder.doDecode(headerBuffer, channel);
 
+        synchronized (this) {
+            if (destroyed || socketChannel != channel) {
+                return;
+            }
+            LOGGER.messageReceived(channel, message);
+
+            if (message instanceof Ping) {
+                send(Pong.getInstance());
+                return;
+            }
+
+            this.onMessageReceived(message);
+        }
     }
 
 
@@ -337,7 +374,7 @@ class CIMConnectManager {
 
         idleHandler.removeMessages(0);
 
-        idleHandler.sendEmptyMessageDelayed(0, CONNECT_ALIVE_TIME_OUT);
+        idleHandler.sendMessageDelayed(idleHandler.obtainMessage(0, socketChannel), CONNECT_ALIVE_TIME_OUT);
     }
 
 }

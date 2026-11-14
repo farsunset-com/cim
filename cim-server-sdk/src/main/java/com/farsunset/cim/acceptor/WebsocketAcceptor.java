@@ -99,7 +99,7 @@ public class WebsocketAcceptor extends NioSocketAcceptor {
 				ch.pipeline().addLast(new HttpServerCodec());
 				ch.pipeline().addLast(new ChunkedWriteHandler());
 				ch.pipeline().addLast(new HttpObjectAggregator(4 * 1024));
-                ch.pipeline().addLast(new ProxyMessageHandler());
+                ch.pipeline().addLast(new ProxyMessageHandler(config.getTrustedProxyPredicate()));
                 ch.pipeline().addLast(blacklistHandler);
 				ch.pipeline().addLast(authHandler);
 				ch.pipeline().addLast(new WebSocketServerProtocolHandler(config.getPath(),true));

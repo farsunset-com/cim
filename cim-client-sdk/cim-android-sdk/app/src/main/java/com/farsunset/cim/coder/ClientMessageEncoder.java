@@ -31,6 +31,9 @@ public class ClientMessageEncoder {
     public ByteBuffer encode(BinaryBody body) {
 
         byte[] data = body.getByteArray();
+        if (data.length > 65535) {
+            throw new IllegalArgumentException("Message body exceeds 65535 bytes: " + data.length);
+        }
 
         ByteBuffer buffer = ByteBuffer.allocate(data.length + CIMConstant.DATA_HEADER_LENGTH);
 

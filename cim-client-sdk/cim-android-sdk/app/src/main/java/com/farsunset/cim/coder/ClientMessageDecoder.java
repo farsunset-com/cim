@@ -29,6 +29,7 @@ import com.farsunset.cim.model.ReplyBody;
 import com.farsunset.cim.model.proto.MessageProto;
 import com.farsunset.cim.model.proto.ReplyBodyProto;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -64,9 +65,11 @@ public class ClientMessageDecoder {
          * 如果读取的消息长度不够，则进行等待后续消息到来
          * 当读取的消息长度(bodyBuffer.position() == dataLength)时意味着一个完整的消息已经接收完成
          */
-        do {
-            socketChannel.read(bodyBuffer);
-        } while (bodyBuffer.position() != dataLength);
+        while (bodyBuffer.hasRemaining()) {
+            if (socketChannel.read(bodyBuffer) < 0) {
+                throw new EOFException("Connection closed before receiving the complete message body");
+            }
+        }
 
 
         /*

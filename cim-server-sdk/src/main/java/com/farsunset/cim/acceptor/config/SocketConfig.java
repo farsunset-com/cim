@@ -81,6 +81,12 @@ public class SocketConfig {
     private Predicate<String> blacklistPredicate;
 
     /**
+     * 可信代理IP校验，未配置时忽略HTTP转发头并拒绝PROXY协议连接。
+     * 启用PROXY协议时必须配置；HTTP转发链从右向左解析至首个非可信地址。
+     */
+    private Predicate<String> trustedProxyPredicate;
+
+    /**
      * 自定义日志打印处理器，可不设置
      */
     private LoggingHandler loggingHandler;
@@ -156,5 +162,13 @@ public class SocketConfig {
 
     public void setBlacklistPredicate(Predicate<String> blacklistPredicate) {
         this.blacklistPredicate = blacklistPredicate;
+    }
+
+    public Predicate<String> getTrustedProxyPredicate() {
+        return trustedProxyPredicate;
+    }
+
+    public void setTrustedProxyPredicate(Predicate<String> trustedProxyPredicate) {
+        this.trustedProxyPredicate = trustedProxyPredicate;
     }
 }

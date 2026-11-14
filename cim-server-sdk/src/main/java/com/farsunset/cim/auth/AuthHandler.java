@@ -1,13 +1,15 @@
 package com.farsunset.cim.auth;
 
-import com.farsunset.cim.constant.CIMConstant;
-import com.farsunset.cim.model.ReplyBody;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.AttributeKey;
+import io.netty.util.ReferenceCountUtil;
 
 import java.util.function.Predicate;
 
@@ -17,13 +19,7 @@ import java.util.function.Predicate;
 @ChannelHandler.Sharable
 public class AuthHandler extends ChannelInboundHandlerAdapter {
 
-    /*
-     *认证失败，返回replyBody给客户端
-     */
-    private final ReplyBody failedBody = ReplyBody.make(CIMConstant.CLIENT_HANDSHAKE,
-            HttpResponseStatus.UNAUTHORIZED.code(),
-            HttpResponseStatus.UNAUTHORIZED.reasonPhrase());
-
+    private static final AttributeKey<Boolean> REJECTED = AttributeKey.valueOf(AuthHandler.class, "rejected");
 
     private final Predicate<AuthPredicateInfo> authPredicate;
 
@@ -34,19 +30,30 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (Boolean.TRUE.equals(ctx.channel().attr(REJECTED).get())) {
+            ReferenceCountUtil.release(msg);
+            return;
+        }
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest request = (FullHttpRequest) msg;
 
-            /*
-             * 鉴权不通过，发送响应体并关闭链接
-             */
-            if (authPredicate != null && ! authPredicate.test(AuthPredicateInfo.of(request, ctx))) {
-                ctx.channel().writeAndFlush(failedBody).addListener(ChannelFutureListener.CLOSE);
+            boolean authenticated;
+            try {
+                authenticated = authPredicate == null || authPredicate.test(AuthPredicateInfo.of(request, ctx));
+            } catch (RuntimeException | Error exception) {
+                ctx.channel().attr(REJECTED).set(true);
+                ReferenceCountUtil.release(request);
+                ctx.close();
+                throw exception;
+            }
+            if (!authenticated) {
+                ctx.channel().attr(REJECTED).set(true);
+                DefaultFullHttpResponse response = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.UNAUTHORIZED);
+                response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+                ReferenceCountUtil.release(request);
+                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                 return;
             }
-
-            //鉴权通过后移除本handler
-            ctx.pipeline().remove(this);
         }
 
         //other protocols

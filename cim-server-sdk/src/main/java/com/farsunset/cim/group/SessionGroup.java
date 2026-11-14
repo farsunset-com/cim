@@ -69,13 +69,10 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
             return;
         }
 
-        Collection<Channel> collections = getOrDefault(uid,Collections.emptyList());
-
-        collections.remove(channel);
-
-        if (collections.isEmpty()){
-            remove(uid);
-        }
+        computeIfPresent(uid, (key, collections) -> {
+            collections.remove(channel);
+            return collections.isEmpty() ? null : collections;
+        });
     }
 
 
@@ -94,10 +91,13 @@ public class SessionGroup extends ConcurrentHashMap<String, Collection<Channel>>
 
         channel.closeFuture().addListener(remover);
 
-        Collection<Channel> collections = this.putIfAbsent(uid,new ConcurrentLinkedQueue<>(Collections.singleton(channel)));
-        if (collections != null){
+        compute(uid, (key, collections) -> {
+            if (collections == null){
+                collections = new ConcurrentLinkedQueue<>();
+            }
             collections.add(channel);
-        }
+            return collections;
+        });
 
         if (!channel.isActive()){
             remove(channel);

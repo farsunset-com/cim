@@ -1,10 +1,13 @@
 package com.farsunset.cim.auth;
 
 import com.farsunset.cim.constant.ChannelAttr;
+import com.farsunset.cim.coder.ProxyMessageHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.util.ReferenceCountUtil;
 
 import java.net.InetSocketAddress;
 import java.util.function.Predicate;
@@ -23,12 +26,32 @@ public class BlacklistHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        // 没有校验 或者 校验通过
-        if (predicate == null || predicate.test(getClientIp(ctx))) {
+        if (ctx.pipeline().get(ProxyMessageHandler.class) != null || predicate == null || predicate.test(getClientIp(ctx))) {
             super.channelRegistered(ctx);
             return;
         }
         ctx.close().addListener(ChannelFutureListener.CLOSE);
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        boolean allowed;
+        try {
+            allowed = predicate == null || predicate.test(getClientIp(ctx));
+        } catch (RuntimeException | Error exception) {
+            ReferenceCountUtil.release(msg);
+            ctx.close();
+            throw exception;
+        }
+        if (!allowed) {
+            ReferenceCountUtil.release(msg);
+            ctx.close();
+            return;
+        }
+        if (!(msg instanceof FullHttpRequest)) {
+            ctx.pipeline().remove(this);
+        }
+        ctx.fireChannelRead(msg);
     }
 
     private String getClientIp(ChannelHandlerContext ctx) {

@@ -66,7 +66,7 @@ public class AppSocketAcceptor extends NioSocketAcceptor {
 			public void initChannel(SocketChannel ch){
 				if (socketConfig.isHaProxyEnable()) {
 					ch.pipeline().addLast(new HAProxyMessageDecoder());
-					ch.pipeline().addLast(new ProxyMessageHandler());
+					ch.pipeline().addLast(new ProxyMessageHandler(socketConfig.getTrustedProxyPredicate()));
 				}
                 ch.pipeline().addLast(blacklistHandler);
 				ch.pipeline().addLast(new AppMessageDecoder());

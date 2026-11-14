@@ -6,7 +6,7 @@
 
     <groupId>com.farsunset</groupId>
     <artifactId>cim-server-sdk-netty</artifactId>
-    <version>4.3.2</version>
+    <version>4.3.5</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>

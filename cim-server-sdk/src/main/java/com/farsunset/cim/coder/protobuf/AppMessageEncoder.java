@@ -26,6 +26,7 @@ import com.farsunset.cim.model.Transportable;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.handler.codec.TooLongFrameException;
 
 /**
  * 服务端发送消息前编码
@@ -35,6 +36,9 @@ public class AppMessageEncoder extends MessageToByteEncoder<Transportable> {
 	@Override
 	protected void encode(final ChannelHandlerContext ctx, final Transportable data, ByteBuf out){
 		byte[] body = data.getBody();
+		if (body.length > 0xffff) {
+			throw new TooLongFrameException("消息体长度超过65535字节: " + body.length);
+		}
 		byte[] header = createHeader(data.getType().getValue(), body.length);
 		out.writeBytes(header);
 		out.writeBytes(body);

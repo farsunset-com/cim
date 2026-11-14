@@ -172,7 +172,7 @@ public class CIMPushManager {
         }
 
         Intent serviceIntent = new Intent(context, CIMPushService.class);
-        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
+        serviceIntent.setAction(ServiceAction.ACTION_CONNECTION_PONG);
         startService(context, serviceIntent);
     }
 
@@ -267,7 +267,14 @@ public class CIMPushManager {
             return;
         }
 
-        autoBindAccount(context);
+        CIMCacheManager.putBoolean(context, CIMCacheManager.KEY_MANUAL_STOP, false);
+        if (isConnected(context)) {
+            autoBindAccount(context);
+        }
+
+        Intent serviceIntent = new Intent(context, CIMPushService.class);
+        serviceIntent.setAction(ServiceAction.ACTION_CREATE_CONNECTION);
+        startService(context, serviceIntent);
     }
 
     /**

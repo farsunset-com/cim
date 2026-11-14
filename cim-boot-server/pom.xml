@@ -10,13 +10,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
     <properties>
         <java.version>21</java.version>
-        <cim.sdk.version>4.3.2</cim.sdk.version>
+        <cim.sdk.version>4.3.5</cim.sdk.version>
         <protobuf.version>4.34.0</protobuf.version>
         <mysql.jdbc.version>9.2.0</mysql.jdbc.version>
         <common.pool.version>2.12.1</common.pool.version>

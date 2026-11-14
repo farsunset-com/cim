@@ -125,9 +125,9 @@ public class CIMPushService extends Service {
     @Override
     public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            return super.registerReceiver(keepAliveReceiver, keepAliveReceiver.getIntentFilter(),Context.RECEIVER_EXPORTED);
+            return super.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
         }else {
-            return super.registerReceiver(keepAliveReceiver, keepAliveReceiver.getIntentFilter());
+            return super.registerReceiver(receiver, filter);
         }
     }
 
@@ -165,7 +165,7 @@ public class CIMPushService extends Service {
         }
 
         if (ServiceAction.ACTION_DESTROY_SERVICE.equals(action)) {
-            connectManager.close();
+            connectManager.destroy();
             this.stopSelf();
         }
 
@@ -248,6 +248,10 @@ public class CIMPushService extends Service {
         super.onDestroy();
 
         connectHandler.removeMessages(0);
+
+        notificationHandler.removeMessages(0);
+
+        connectManager.destroy();
 
         stopForeground(true);
 

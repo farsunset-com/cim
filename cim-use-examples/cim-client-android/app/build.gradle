@@ -43,6 +43,6 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-javalite:4.34.0'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
-    implementation "com.farsunset:cim-android-sdk:4.3.3"
+    implementation "com.farsunset:cim-android-sdk:4.3.5"
 
 }
